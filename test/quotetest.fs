@@ -7,6 +7,7 @@ open LLVM.Generated.Target
 open LLVM.Generated.BitWriter
 open LLVM.BitReader
 
+// first create some simple quotations for testing
 let testQuote =
     <@
         // let's start with some super-simple functions
@@ -104,6 +105,7 @@ let testQuote =
         ()
     @>
 
+// now create a quotation with more complex linear algebra code
 let linAlgQuote =
     <@
         let transpose (squareMat:RawArray<double>) (rowColCount:int) : unit =
@@ -163,13 +165,17 @@ let linAlgQuote =
         /// <summary>
         /// Use guassian elimination with pivoting to calculate LU decomposition for the
         /// given matrix. Since pivoting changes row ordering the reordered indices are
-        /// also returned.
+        /// returned.
         /// </summary>
-        /// <param name="m">the coefficient matrix (must be square)</param>
+        /// <param name="matrix">
+        ///     the coefficient matrix (must be square). This matrix is destructively
+        ///     updated resulting in the upper triangle containing U and the
+        ///     lower triangle containing L for the LU decomposition
+        /// </param>
+        /// <param name="size">the row and column counts of matrix</param>
         /// <returns>
-        /// A tuple containing: (luMatrix, rowOrder). The upper triangle of luMatrix
-        /// (including diagonal) contains U while the lower triangle of luMatrix
-        /// contains L
+        ///     the row order array of the matrix resulting from all of the pivoting
+        ///     operations
         /// </returns>
         let luDecompose (matrix:RawArray<double>) (size:int) : RawArray<int> =
             //let size = Array2D.length1 matrix
@@ -262,8 +268,8 @@ let linAlgQuote =
 let main _ =
 
     let llvmModuleRef = moduleCreateWithName "quote-module"
-    compileQuote llvmModuleRef testQuote
-    compileQuote llvmModuleRef linAlgQuote
+    compileQuote llvmModuleRef testQuote |> ignore
+    compileQuote llvmModuleRef linAlgQuote |> ignore
     dumpModule llvmModuleRef
     writeBitcodeToFile llvmModuleRef "quotemodule.bc" |> ignore
     

@@ -28,17 +28,17 @@ let heapAllocRawArray (size:int) : RawArray<'a> = onlyForQuotations()
 let stackAllocRawArray (size:int) : RawArray<'a> = onlyForQuotations()
 let free (heapAllocated:'a) : unit = onlyForQuotations()
 
-type Def = {
+type private Def = {
     funVar : Var
     funParams : Var list
     body : Expr
 }
 
-type LetDef =
+type private LetDef =
     | LetDef of Def
     | LetRecDefs of Def list
 
-let rec lambdas (expr:Expr) =
+let rec private lambdas (expr:Expr) =
     match expr with
     | Lambda (var, expr) ->
         let varTail, expr = lambdas expr
@@ -46,7 +46,7 @@ let rec lambdas (expr:Expr) =
     | _ ->
         [], expr
 
-let allLetFuncDefs (expr:Expr) : LetDef list * Expr =
+let private allLetFuncDefs (expr:Expr) : LetDef list * Expr =
     let rec go expr =
         let next (letDef:LetDef) (remExpr:Expr) =
             let letDefTail, remExpr = go remExpr
@@ -65,65 +65,65 @@ let allLetFuncDefs (expr:Expr) : LetDef list * Expr =
 
     go expr
 
-let uInt32Ty = typeof<System.UInt32>
-let int32Ty = typeof<System.Int32>
-let uInt16Ty = typeof<System.UInt16>
-let int16Ty = typeof<System.Int16>
-let uInt8Ty = typeof<System.Byte>
-let int8Ty = typeof<System.SByte>
+let private uInt32Ty = typeof<System.UInt32>
+let private int32Ty = typeof<System.Int32>
+let private uInt16Ty = typeof<System.UInt16>
+let private int16Ty = typeof<System.Int16>
+let private uInt8Ty = typeof<System.Byte>
+let private int8Ty = typeof<System.SByte>
 
-let (|UnitTy|_|) (ty:System.Type) =
+let private (|UnitTy|_|) (ty:System.Type) =
     if ty = typeof<unit> then Some UnitTy else None
 
-let (|BoolTy|_|) (ty:System.Type) =
+let private (|BoolTy|_|) (ty:System.Type) =
     if ty = typeof<bool> then Some BoolTy else None
 
-let (|SingleTy|_|) (ty:System.Type) =
+let private (|SingleTy|_|) (ty:System.Type) =
     if ty = typeof<single> then Some SingleTy else None
-let (|DoubleTy|_|) (ty:System.Type) =
+let private (|DoubleTy|_|) (ty:System.Type) =
     if ty = typeof<double> then Some DoubleTy else None
 
-let (|Int8Ty|_|) (ty:System.Type) =
+let private (|Int8Ty|_|) (ty:System.Type) =
     if ty = typeof<int8> then Some Int8Ty else None
-let (|UInt8Ty|_|) (ty:System.Type) =
+let private (|UInt8Ty|_|) (ty:System.Type) =
     if ty = typeof<uint8> then Some UInt8Ty else None
-let (|Int16Ty|_|) (ty:System.Type) =
+let private (|Int16Ty|_|) (ty:System.Type) =
     if ty = typeof<int16> then Some Int16Ty else None
-let (|UInt16Ty|_|) (ty:System.Type) =
+let private (|UInt16Ty|_|) (ty:System.Type) =
     if ty = typeof<uint16> then Some UInt16Ty else None
-let (|Int32Ty|_|) (ty:System.Type) =
+let private (|Int32Ty|_|) (ty:System.Type) =
     if ty = typeof<int32> then Some Int32Ty else None
-let (|UInt32Ty|_|) (ty:System.Type) =
+let private (|UInt32Ty|_|) (ty:System.Type) =
     if ty = typeof<uint32> then Some UInt32Ty else None
-let (|Int64Ty|_|) (ty:System.Type) =
+let private (|Int64Ty|_|) (ty:System.Type) =
     if ty = typeof<int64> then Some Int64Ty else None
-let (|UInt64Ty|_|) (ty:System.Type) =
+let private (|UInt64Ty|_|) (ty:System.Type) =
     if ty = typeof<uint64> then Some UInt64Ty else None
 
-let (|AnySIntTy|_|) (ty:System.Type) =
+let private (|AnySIntTy|_|) (ty:System.Type) =
     match ty with
     | Int64Ty _ | Int32Ty _ | Int16Ty _ | Int8Ty _ -> Some AnySIntTy
     | _ -> None
-let (|AnyUIntTy|_|) (ty:System.Type) =
+let private (|AnyUIntTy|_|) (ty:System.Type) =
     match ty with
     | UInt64Ty _ | UInt32Ty _ | UInt16Ty _ | UInt8Ty _ -> Some AnyUIntTy
     | _ -> None
-let (|AnyIntTy|_|) (ty:System.Type) =
+let private (|AnyIntTy|_|) (ty:System.Type) =
     match ty with
     | AnySIntTy _ | AnyUIntTy _ -> Some AnyIntTy
     | _ -> None
-let (|AnyFloatTy|_|) (ty:System.Type) =
+let private (|AnyFloatTy|_|) (ty:System.Type) =
     match ty with
     | DoubleTy _ | SingleTy _ -> Some AnyFloatTy
     | _ -> None
 
-let (|ArrayTy|_|) (ty:System.Type) =
+let private (|ArrayTy|_|) (ty:System.Type) =
     if typesGenEq ty typeof<RawArray<_>> then
         Some <| ArrayTy (ty.GetGenericArguments().[0])
     else
         None
 
-let (|TupleTy|_|) (ty:System.Type) =
+let private (|TupleTy|_|) (ty:System.Type) =
     let sysTupTys = [|
         typeof<System.Tuple<_>>
         typeof<System.Tuple<_, _>>
@@ -148,11 +148,11 @@ let (|TupleTy|_|) (ty:System.Type) =
     else
         None
 
-let rec allocableLLVMTyOf (ty:System.Type) : LGC.TypeRef =
+let rec private allocableLLVMTyOf (ty:System.Type) : LGC.TypeRef =
     match ty with
     | TupleTy elemTys -> LC.structType (Array.map llvmTyOf elemTys) false
     | _ -> failwithf "No support for type %A" ty
-and llvmTyOf (ty:System.Type) : LGC.TypeRef =
+and private llvmTyOf (ty:System.Type) : LGC.TypeRef =
     match ty with
     | DoubleTy -> LGC.doubleType()
     | SingleTy -> LGC.floatType()
@@ -164,12 +164,12 @@ and llvmTyOf (ty:System.Type) : LGC.TypeRef =
     | UnitTy -> LGC.voidType()
     | ArrayTy elemTy -> LGC.pointerType (llvmTyOf elemTy) 0u
     | _ -> LGC.pointerType (allocableLLVMTyOf ty) 0u
-let llvmTyOfVar (var:Var) : LGC.TypeRef = llvmTyOf var.Type
-let llvmTyOfExpr (expr:Expr) : LGC.TypeRef = llvmTyOf expr.Type
+let private llvmTyOfVar (var:Var) : LGC.TypeRef = llvmTyOf var.Type
+let private llvmTyOfExpr (expr:Expr) : LGC.TypeRef = llvmTyOf expr.Type
 
-let isUnitExpr (expr:Expr) : bool = expr.Type = typeof<unit>
+let private isUnitExpr (expr:Expr) : bool = expr.Type = typeof<unit>
 
-let llvmFunTyOf (def:Def) : LGC.TypeRef =
+let private llvmFunTyOf (def:Def) : LGC.TypeRef =
     if def.funParams.IsEmpty then
         failwithf "top level definitions should be a function but \"%A\" is not" id
     
@@ -183,7 +183,7 @@ let llvmFunTyOf (def:Def) : LGC.TypeRef =
         let llvmParamTys = List.map llvmTyOfVar def.funParams |> Array.ofList
         LC.functionType llvmRetTy llvmParamTys
 
-let declareFunction (moduleRef:LGC.ModuleRef) (def:Def) : LGC.ValueRef =
+let private declareFunction (moduleRef:LGC.ModuleRef) (def:Def) : LGC.ValueRef =
     let fn = LGC.addFunction moduleRef def.funVar.Name (llvmFunTyOf def)
     def.funParams |> List.iteri (
         fun i p ->
@@ -192,7 +192,7 @@ let declareFunction (moduleRef:LGC.ModuleRef) (def:Def) : LGC.ValueRef =
     )
     fn
 
-let (|FullAppl|_|) (expr:Expr) =
+let private (|FullAppl|_|) (expr:Expr) =
     let rec go expr =
         match expr with
         | Application (f, x) ->
@@ -206,7 +206,12 @@ let (|FullAppl|_|) (expr:Expr) =
     | None -> None
     | Some (f, xs) -> Some (FullAppl (f, List.rev xs))
 
-let implementFunction (modRef:LGC.ModuleRef) (valMap:Map<string, LGC.ValueRef>) (fnVal:LGC.ValueRef) (fnDef:Def) : unit =
+let private implementFunction
+        (modRef:LGC.ModuleRef)
+        (valMap:Map<string, LGC.ValueRef>)
+        (fnVal:LGC.ValueRef)
+        (fnDef:Def)
+        : unit =
     
     let entryBlock = LGC.appendBasicBlock fnVal "entry"
     use entryBldr = new LC.Builder(entryBlock)
@@ -676,7 +681,10 @@ let implementFunction (modRef:LGC.ModuleRef) (valMap:Map<string, LGC.ValueRef>) 
             LGC.buildRet bldr retVal
     LGC.buildBr entryBldr startBlock |> ignore
 
-let compileQuote (moduleRef:LGC.ModuleRef) (expr:Expr) =
+/// Compiles the given quotations into the LLVM module and returns a mapping of function
+/// name to LLVM ValueRef. Consult the project README for limitations on what kind
+/// of quotations are valid input.
+let compileQuote (moduleRef:LGC.ModuleRef) (expr:Expr) : Map<string, LGC.ValueRef> =
     let funcDefs, endExpr = allLetFuncDefs expr
     let mutable varMap = Map.empty
     for fd in funcDefs do
@@ -696,3 +704,5 @@ let compileQuote (moduleRef:LGC.ModuleRef) (expr:Expr) =
                 varMap <- varMap.Add(def.funVar.Name, fn)
             for def in defs do
                 implementFunction moduleRef varMap varMap.[def.funVar.Name] def
+
+    varMap

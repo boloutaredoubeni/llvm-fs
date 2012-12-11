@@ -1516,53 +1516,57 @@ namespace LLVM
     val heapAllocRawArray : int -> RawArray<'a>
     val stackAllocRawArray : int -> RawArray<'a>
     val free : 'a -> unit
-    type Def =
+    type private Def =
       {funVar: Quotations.Var;
        funParams: Quotations.Var list;
        body: Quotations.Expr;}
-    type LetDef =
+    type private LetDef =
       | LetDef of Def
       | LetRecDefs of Def list
-    val lambdas : Quotations.Expr -> Quotations.Var list * Quotations.Expr
-    val allLetFuncDefs : Quotations.Expr -> LetDef list * Quotations.Expr
-    val uInt32Ty : System.Type
-    val int32Ty : System.Type
-    val uInt16Ty : System.Type
-    val int16Ty : System.Type
-    val uInt8Ty : System.Type
-    val int8Ty : System.Type
-    val ( |UnitTy|_| ) : System.Type -> unit option
-    val ( |BoolTy|_| ) : System.Type -> unit option
-    val ( |SingleTy|_| ) : System.Type -> unit option
-    val ( |DoubleTy|_| ) : System.Type -> unit option
-    val ( |Int8Ty|_| ) : System.Type -> unit option
-    val ( |UInt8Ty|_| ) : System.Type -> unit option
-    val ( |Int16Ty|_| ) : System.Type -> unit option
-    val ( |UInt16Ty|_| ) : System.Type -> unit option
-    val ( |Int32Ty|_| ) : System.Type -> unit option
-    val ( |UInt32Ty|_| ) : System.Type -> unit option
-    val ( |Int64Ty|_| ) : System.Type -> unit option
-    val ( |UInt64Ty|_| ) : System.Type -> unit option
-    val ( |AnySIntTy|_| ) : System.Type -> unit option
-    val ( |AnyUIntTy|_| ) : System.Type -> unit option
-    val ( |AnyIntTy|_| ) : System.Type -> unit option
-    val ( |AnyFloatTy|_| ) : System.Type -> unit option
-    val ( |ArrayTy|_| ) : System.Type -> System.Type option
-    val ( |TupleTy|_| ) : System.Type -> System.Type [] option
-    val allocableLLVMTyOf : System.Type -> Generated.Core.TypeRef
-    val llvmTyOf : System.Type -> Generated.Core.TypeRef
-    val llvmTyOfVar : Quotations.Var -> Generated.Core.TypeRef
-    val llvmTyOfExpr : Quotations.Expr -> Generated.Core.TypeRef
-    val isUnitExpr : Quotations.Expr -> bool
-    val llvmFunTyOf : Def -> Generated.Core.TypeRef
-    val declareFunction :
+    val private lambdas :
+      Quotations.Expr -> Quotations.Var list * Quotations.Expr
+    val private allLetFuncDefs :
+      Quotations.Expr -> LetDef list * Quotations.Expr
+    val private uInt32Ty : System.Type
+    val private int32Ty : System.Type
+    val private uInt16Ty : System.Type
+    val private int16Ty : System.Type
+    val private uInt8Ty : System.Type
+    val private int8Ty : System.Type
+    val private ( |UnitTy|_| ) : System.Type -> unit option
+    val private ( |BoolTy|_| ) : System.Type -> unit option
+    val private ( |SingleTy|_| ) : System.Type -> unit option
+    val private ( |DoubleTy|_| ) : System.Type -> unit option
+    val private ( |Int8Ty|_| ) : System.Type -> unit option
+    val private ( |UInt8Ty|_| ) : System.Type -> unit option
+    val private ( |Int16Ty|_| ) : System.Type -> unit option
+    val private ( |UInt16Ty|_| ) : System.Type -> unit option
+    val private ( |Int32Ty|_| ) : System.Type -> unit option
+    val private ( |UInt32Ty|_| ) : System.Type -> unit option
+    val private ( |Int64Ty|_| ) : System.Type -> unit option
+    val private ( |UInt64Ty|_| ) : System.Type -> unit option
+    val private ( |AnySIntTy|_| ) : System.Type -> unit option
+    val private ( |AnyUIntTy|_| ) : System.Type -> unit option
+    val private ( |AnyIntTy|_| ) : System.Type -> unit option
+    val private ( |AnyFloatTy|_| ) : System.Type -> unit option
+    val private ( |ArrayTy|_| ) : System.Type -> System.Type option
+    val private ( |TupleTy|_| ) : System.Type -> System.Type [] option
+    val private allocableLLVMTyOf : System.Type -> Generated.Core.TypeRef
+    val private llvmTyOf : System.Type -> Generated.Core.TypeRef
+    val private llvmTyOfVar : Quotations.Var -> Generated.Core.TypeRef
+    val private llvmTyOfExpr : Quotations.Expr -> Generated.Core.TypeRef
+    val private isUnitExpr : Quotations.Expr -> bool
+    val private llvmFunTyOf : Def -> Generated.Core.TypeRef
+    val private declareFunction :
       Generated.Core.ModuleRef -> Def -> Generated.Core.ValueRef
-    val ( |FullAppl|_| ) :
+    val private ( |FullAppl|_| ) :
       Quotations.Expr -> (Quotations.Expr * Quotations.Expr list) option
-    val implementFunction :
+    val private implementFunction :
       Generated.Core.ModuleRef ->
         Map<string,Generated.Core.ValueRef> ->
           Generated.Core.ValueRef -> Def -> unit
-    val compileQuote : Generated.Core.ModuleRef -> Quotations.Expr -> unit
+    val compileQuote :
+      Generated.Core.ModuleRef ->
+        Quotations.Expr -> Map<string,Generated.Core.ValueRef>
   end
 
