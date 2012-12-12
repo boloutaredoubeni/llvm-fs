@@ -29,10 +29,10 @@ let testQuote =
 
         // for loop with a mutable
         let fac x : int =
-            let mutable sum = 1
+            let mutable accum = 1
             for i = 2 to x do
-                sum <- sum * i
-            sum
+                accum <- accum * i
+            accum
 
         // simple array with for loop
         let sum (xs:RawArray<int>) (size:int) : int =
@@ -94,7 +94,7 @@ let testQuote =
             let x, y, z = tup
             free tup
 
-            // build the array and call sum
+            // build the array
             let size = 3
             let arr = heapAllocRawArray size
             arr.[0] <- x

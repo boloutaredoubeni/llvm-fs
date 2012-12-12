@@ -49,14 +49,16 @@ In order to use llvm-fs you will want to consult the following:
 
 ### Compiling F# Quotations
 
-You can use F# Quotations to build LLVM functions. This is a lot more efficient
-than using the API but there are caveats:
+You can use F# Quotations to build LLVM functions. Using quotations is much
+more concise and simple than the API but there are caveats:
 
 * The F# quotations are treated a way to represent LLVM IR more than F# code, so
   F# semantics are not 100% respected.
 * Many common F# language constructs are not supported for simplicity and so
   that the code in quotations will map fairly directly to LLVM IR code. Examples
   of this are that:
+    * quotations only allow you to use a part of the functionality that is
+      available in the LLVM API
     * the only supported types are: `bool`, `int[8,16,32,64]`,
       `uint[8,16,32,64]`, `single`, `double`, tuples and arrays (using
       `LLVM.Quote.RawArray` type which does not have a length property)
