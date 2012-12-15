@@ -9,9 +9,8 @@ open Microsoft.FSharp.Quotations.DerivedPatterns
 module LGC = LLVM.Generated.Core
 module LC = LLVM.Core
 
-let private onlyForQuotations() =
-    failwith "this function is only meant to be used within a quotation"
-
+/// Determines if two types are equal assuming that we ignore any
+/// generic components
 let private typesGenEq (ty1:System.Type) (ty2:System.Type) =
     let genTy (ty:System.Type) =
         if ty.IsGenericType then
@@ -21,24 +20,43 @@ let private typesGenEq (ty1:System.Type) (ty2:System.Type) =
 
     genTy ty1 = genTy ty2
 
+let private onlyForQuotations() =
+    failwith "this function is only meant to be used within a quotation"
+
+/// this type should only be used within quotations to represent
+/// an LLVM array. It is called RawArray to distinguish it from
+/// F# arrays
 type [<AbstractClass>] RawArray<'a> =
     abstract Item : int -> 'a with get, set
 
+/// This function can only be used within a quotation to indicate
+/// a heap allocation of an LLVM array
 let heapAllocRawArray (size:int) : RawArray<'a> = onlyForQuotations()
+
+/// This function can only be used within a quotation to indicate
+/// a stack allocation of an LLVM array
 let stackAllocRawArray (size:int) : RawArray<'a> = onlyForQuotations()
+
+/// This function can only be used within a quotation to free
+/// a heap-allocated variable
 let free (heapAllocated:'a) : unit = onlyForQuotations()
 
+// our internal representation of a function definition
 type private Def = {
     funVar : Var
     funParams : Var list
     body : Expr
 }
 
+// a LetDef can either be a single non-recursive function def or
+// a list of mutually recursive function definitions
 type private LetDef =
     | LetDef of Def
     | LetRecDefs of Def list
 
-let rec private lambdas (expr:Expr) =
+// concatenates successive lambdas so that they can be treated as a single
+// multi-parameter function
+let rec private lambdas (expr:Expr) : Var list * Expr =
     match expr with
     | Lambda (var, expr) ->
         let varTail, expr = lambdas expr
@@ -46,6 +64,8 @@ let rec private lambdas (expr:Expr) =
     | _ ->
         [], expr
 
+// creates a list of all successive function definitions followed by a function
+// representing any remaining expressions
 let private allLetFuncDefs (expr:Expr) : LetDef list * Expr =
     let rec go expr =
         let next (letDef:LetDef) (remExpr:Expr) =
@@ -72,6 +92,7 @@ let private int16Ty = typeof<System.Int16>
 let private uInt8Ty = typeof<System.Byte>
 let private int8Ty = typeof<System.SByte>
 
+// these active patterns simplify working with .NET types
 let private (|UnitTy|_|) (ty:System.Type) =
     if ty = typeof<unit> then Some UnitTy else None
 
@@ -123,6 +144,10 @@ let private (|ArrayTy|_|) (ty:System.Type) =
     else
         None
 
+// matches any tuple type returning the list of generic type args
+// TODO: F# uses a recursive tuple param in the 8th generic param
+//       to represent tuples with more than 8 components. We
+//       may have to make some code changes to accomodate this
 let private (|TupleTy|_|) (ty:System.Type) =
     let sysTupTys = [|
         typeof<System.Tuple<_>>
@@ -148,10 +173,12 @@ let private (|TupleTy|_|) (ty:System.Type) =
     else
         None
 
+// The LLVM type that we should "malloc" corresponding to the given .NET type
 let rec private allocableLLVMTyOf (ty:System.Type) : LGC.TypeRef =
     match ty with
     | TupleTy elemTys -> LC.structType (Array.map llvmTyOf elemTys) false
     | _ -> failwithf "No support for type %A" ty
+// The LLVM type that corresponds to the given .NET type
 and private llvmTyOf (ty:System.Type) : LGC.TypeRef =
     match ty with
     | DoubleTy -> LGC.doubleType()
@@ -183,6 +210,7 @@ let private llvmFunTyOf (def:Def) : LGC.TypeRef =
         let llvmParamTys = List.map llvmTyOfVar def.funParams |> Array.ofList
         LC.functionType llvmRetTy llvmParamTys
 
+// create an LLVM function definition from the given def
 let private declareFunction (moduleRef:LGC.ModuleRef) (def:Def) : LGC.ValueRef =
     let fn = LGC.addFunction moduleRef def.funVar.Name (llvmFunTyOf def)
     def.funParams |> List.iteri (
@@ -192,6 +220,8 @@ let private declareFunction (moduleRef:LGC.ModuleRef) (def:Def) : LGC.ValueRef =
     )
     fn
 
+// matches a "full application" meaning that all consecutive applications are
+// appended into a list of applications
 let private (|FullAppl|_|) (expr:Expr) =
     let rec go expr =
         match expr with
@@ -206,6 +236,7 @@ let private (|FullAppl|_|) (expr:Expr) =
     | None -> None
     | Some (f, xs) -> Some (FullAppl (f, List.rev xs))
 
+// this function builds LLVM code to implement the given fnDef
 let private implementFunction
         (modRef:LGC.ModuleRef)
         (valMap:Map<string, LGC.ValueRef>)
@@ -213,6 +244,9 @@ let private implementFunction
         (fnDef:Def)
         : unit =
     
+    // NOTE: putting all alloca's in an entry block is important to LLVM's
+    //       mem2reg optimization pass so you'll notice that we add all
+    //       allocas using the entryBldr below
     let entryBlock = LGC.appendBasicBlock fnVal "entry"
     use entryBldr = new LC.Builder(entryBlock)
 
@@ -225,30 +259,12 @@ let private implementFunction
             valMap := (!valMap).Add(p.Name, LGC.getParam fnVal (uint32 i))
     )
 
-    let rec implementExprs
-            (bb:LGC.BasicBlockRef)
-            (valMap:Map<string, LGC.ValueRef>)
-            (exprs:Expr list)
-            : list<LGC.ValueRef> * LGC.BasicBlockRef =
-        let bb = ref bb
-        let argVals = [
-            for expr in exprs ->
-                let xVal, newBB = implementSomeExpr !bb valMap expr
-                bb := newBB
-                xVal
-        ]
-
-        argVals, !bb
-    and implementSomeExpr
-            (bb:LGC.BasicBlockRef)
-            (valMap:Map<string, LGC.ValueRef>)
-            (expr:Expr)
-            : LGC.ValueRef * LGC.BasicBlockRef =
-        match implementExpr bb valMap expr with
-        | None, _ -> failwith "internal error: expression unexpectedly evaluated as unit"
-        | Some exprVal, bb ->
-            exprVal, bb
-    and implementExpr
+    // This function will implement the given Expr by writing LLVM code to the given
+    // basic block. The ValueRef option in the returned tuple represents the value
+    // of the expression which will be None for unit expressions. The basic block in
+    // the return tuple represents the single exit block for the expression (which
+    // in many cases is the same as the block passed in).
+    let rec implementExpr
             (bb:LGC.BasicBlockRef)
             (valMap:Map<string, LGC.ValueRef>)
             (expr:Expr)
@@ -266,6 +282,7 @@ let private implementFunction
             | _ ->
                 failwithf "error in function %s: expression type not supported %A" fnDef.funVar.Name expr
 
+        // convenience function for implementing binary operators
         let implBinOp llvmBinOp lhsExpr rhsExpr : LGC.ValueRef option * LGC.BasicBlockRef =
             let lhsVal, bb = implementSomeExpr bb valMap lhsExpr
             let rhsVal, bb = implementSomeExpr bb valMap rhsExpr
@@ -670,6 +687,35 @@ let private implementFunction
         | _ ->
             noImpl()
 
+    // a convenience function for calling implementExpr when where a
+    // None returned ValueRef (ie: unit type value) should be treated as an error
+    and implementSomeExpr
+            (bb:LGC.BasicBlockRef)
+            (valMap:Map<string, LGC.ValueRef>)
+            (expr:Expr)
+            : LGC.ValueRef * LGC.BasicBlockRef =
+        match implementExpr bb valMap expr with
+        | None, _ -> failwith "internal error: expression unexpectedly evaluated as unit"
+        | Some exprVal, bb ->
+            exprVal, bb
+
+    // implement many expressions (eg: a parameter list) where none has a unit type
+    and implementExprs
+            (bb:LGC.BasicBlockRef)
+            (valMap:Map<string, LGC.ValueRef>)
+            (exprs:Expr list)
+            : list<LGC.ValueRef> * LGC.BasicBlockRef =
+        let bb = ref bb
+        let argVals = [
+            for expr in exprs ->
+                let xVal, newBB = implementSomeExpr !bb valMap expr
+                bb := newBB
+                xVal
+        ]
+
+        argVals, !bb
+
+    // the start block imediately follows the entry block
     let startBlock = LGC.appendBasicBlock fnVal "start"
     ignore <|
         match implementExpr startBlock !valMap fnDef.body with

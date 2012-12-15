@@ -1505,8 +1505,8 @@ namespace LLVM
 
 namespace LLVM
   module Quote = begin
-    val private onlyForQuotations : unit -> 'a
     val private typesGenEq : System.Type -> System.Type -> bool
+    val private onlyForQuotations : unit -> 'a
     [<AbstractClassAttribute ()>]
     type RawArray<'a> =
       class
