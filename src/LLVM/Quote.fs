@@ -290,6 +290,36 @@ let private implementFunction
 
             Some resultVal, bb
 
+        // this function is used to build short-circuit instructions for && and || operators
+        let shortCircuit isAndOp lhsExpr rhsExpr =
+            let lhsVal, lhsBB = implementSomeExpr bb valMap lhsExpr
+
+            let shortCircuitFailedBB = LGC.appendBasicBlock fnVal "shortCircuitFailed"
+            let shortCircuitExitBB = LGC.appendBasicBlock fnVal "shortCircuitExit"
+
+            // build the short-circuit conditional branch
+            use bldr = new LC.Builder(lhsBB)
+            if isAndOp then
+                LGC.buildCondBr bldr lhsVal shortCircuitFailedBB shortCircuitExitBB |> ignore
+            else
+                LGC.buildCondBr bldr lhsVal shortCircuitExitBB shortCircuitFailedBB |> ignore
+            
+            // we need to build the block that executes when short-circuit fails
+            let rhsVal, rhsBB = implementSomeExpr shortCircuitFailedBB valMap rhsExpr
+            use bldr = new LC.Builder(rhsBB)
+            LGC.buildBr bldr shortCircuitExitBB |> ignore
+
+            // the exit point just works as a phi for the LHS and RHS
+            use bldr = new LC.Builder(shortCircuitExitBB)
+            let result =
+                LC.buildPhiWithIncoming
+                    bldr
+                    (LGC.int1Type())
+                    [|(lhsVal, lhsBB); (rhsVal, rhsBB)|]
+                    (if isAndOp then "andResult" else "orResult")
+
+            (Some result, shortCircuitExitBB)
+
         match expr with
         | Sequential (expr1, expr2) ->
             let _, bb = implementExpr bb valMap expr1
@@ -522,11 +552,13 @@ let private implementFunction
                 | _ ->
                     failwith "internal error: bad args for (<=)"
             implBinOp binOp lhsExpr rhsExpr
-        | SpecificCall <@@ (&&) @@> (_, _, [lhsExpr; rhsExpr])
+        | SpecificCall <@@ (&&) @@> (_, _, [lhsExpr; rhsExpr]) ->
+            shortCircuit true lhsExpr rhsExpr
         | SpecificCall <@@ (&&&) @@> (_, _, [lhsExpr; rhsExpr]) ->
             use bldr = new LC.Builder(bb)
             implBinOp (fun lhs rhs -> LGC.buildAnd bldr lhs rhs "tempAnd") lhsExpr rhsExpr
-        | SpecificCall <@@ (||) @@> (_, _, [lhsExpr; rhsExpr])
+        | SpecificCall <@@ (||) @@> (_, _, [lhsExpr; rhsExpr]) ->
+            shortCircuit false lhsExpr rhsExpr
         | SpecificCall <@@ (|||) @@> (_, _, [lhsExpr; rhsExpr]) ->
             use bldr = new LC.Builder(bb)
             implBinOp (fun lhs rhs -> LGC.buildOr bldr lhs rhs "tempOr") lhsExpr rhsExpr
