@@ -732,6 +732,10 @@ let private implementFunction
 /// of quotations are valid input.
 let compileQuote (moduleRef:LGC.ModuleRef) (expr:Expr) : Map<string, LGC.ValueRef> =
     let funcDefs, endExpr = allLetFuncDefs expr
+    match endExpr with
+    | Value (:? unit, _) -> ()
+    | _ -> failwithf "expected the final expression to be unit but it is %A" endExpr
+
     let mutable varMap = Map.empty
     for fd in funcDefs do
         //printfn "@@@@ FUNCTION GROUP @@@@"
