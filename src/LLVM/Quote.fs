@@ -121,6 +121,16 @@ let private (|Int64Ty|_|) (ty:System.Type) =
 let private (|UInt64Ty|_|) (ty:System.Type) =
     if ty = typeof<uint64> then Some UInt64Ty else None
 
+let intTySize = function
+    | Int8Ty | UInt8Ty -> 8
+    | Int16Ty | UInt16Ty -> 16
+    | Int32Ty | UInt32Ty -> 32
+    | Int64Ty | UInt64Ty -> 64
+    | _ -> failwith "expected an int type"
+let isSignedInt = function
+    | Int8Ty | Int16Ty | Int32Ty | Int64Ty -> true
+    | _ -> false
+
 let private (|AnySIntTy|_|) (ty:System.Type) =
     match ty with
     | Int64Ty _ | Int32Ty _ | Int16Ty _ | Int8Ty _ -> Some AnySIntTy
@@ -283,10 +293,11 @@ let private implementFunction
                 failwithf "error in function %s: expression type not supported %A" fnDef.funVar.Name expr
 
         // convenience function for implementing binary operators
-        let implBinOp llvmBinOp lhsExpr rhsExpr : LGC.ValueRef option * LGC.BasicBlockRef =
+        let implBinOp bb llvmBinOp lhsExpr rhsExpr : LGC.ValueRef option * LGC.BasicBlockRef =
             let lhsVal, bb = implementSomeExpr bb valMap lhsExpr
             let rhsVal, bb = implementSomeExpr bb valMap rhsExpr
-            let resultVal = llvmBinOp lhsVal rhsVal
+            use bldr = new LC.Builder(bb)
+            let resultVal = llvmBinOp bldr lhsVal rhsVal
 
             Some resultVal, bb
 
@@ -475,12 +486,11 @@ let private implementFunction
         | SpecificCall <@@ not @@> (_, _, [exprToNot])
         | SpecificCall <@@ (~~~) @@> (_, _, [exprToNot]) ->
             let valToNot, bb = implementSomeExpr bb valMap exprToNot
-            let bldr = new LC.Builder(bb)
+            use bldr = new LC.Builder(bb)
             let notVal = LGC.buildNot bldr valToNot "notVal"
             Some notVal, bb
         | SpecificCall <@@ (=) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnyIntTy, AnyIntTy ->
                     LGC.buildICmp bldr LGC.IntPredicate.IntEQ lhs rhs "tempEq"
@@ -488,10 +498,9 @@ let private implementFunction
                     LGC.buildFCmp bldr LGC.RealPredicate.RealOEQ lhs rhs "tempFEq"
                 | _ ->
                     failwith "internal error: bad args for (=)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
         | SpecificCall <@@ (<>) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnyIntTy, AnyIntTy ->
                     LGC.buildICmp bldr LGC.IntPredicate.IntNE lhs rhs "tempNEq"
@@ -499,10 +508,9 @@ let private implementFunction
                     LGC.buildFCmp bldr LGC.RealPredicate.RealONE lhs rhs "tempFNEq"
                 | _ ->
                     failwith "internal error: bad args for (=)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
         | SpecificCall <@@ (>) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnySIntTy, AnySIntTy ->
                     LGC.buildICmp bldr LGC.IntPredicate.IntSGT lhs rhs "tempSGT"
@@ -512,10 +520,9 @@ let private implementFunction
                     LGC.buildFCmp bldr LGC.RealPredicate.RealOGT lhs rhs "tempFGT"
                 | _ ->
                     failwith "internal error: bad args for (>)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
         | SpecificCall <@@ (>=) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnySIntTy, AnySIntTy ->
                     LGC.buildICmp bldr LGC.IntPredicate.IntSGE lhs rhs "tempSGE"
@@ -525,10 +532,9 @@ let private implementFunction
                     LGC.buildFCmp bldr LGC.RealPredicate.RealOGE lhs rhs "tempFGE"
                 | _ ->
                     failwith "internal error: bad args for (>=)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
         | SpecificCall <@@ (<) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnySIntTy, AnySIntTy ->
                     LGC.buildICmp bldr LGC.IntPredicate.IntSLT lhs rhs "tempSLT"
@@ -538,10 +544,9 @@ let private implementFunction
                     LGC.buildFCmp bldr LGC.RealPredicate.RealOLT lhs rhs "tempFLT"
                 | _ ->
                     failwith "internal error: bad args for (<)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
         | SpecificCall <@@ (<=) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnySIntTy, AnySIntTy ->
                     LGC.buildICmp bldr LGC.IntPredicate.IntSLE lhs rhs "tempSLE"
@@ -551,27 +556,72 @@ let private implementFunction
                     LGC.buildFCmp bldr LGC.RealPredicate.RealOLE lhs rhs "tempFLE"
                 | _ ->
                     failwith "internal error: bad args for (<=)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
         | SpecificCall <@@ (&&) @@> (_, _, [lhsExpr; rhsExpr]) ->
             shortCircuit true lhsExpr rhsExpr
-        | SpecificCall <@@ (&&&) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            implBinOp (fun lhs rhs -> LGC.buildAnd bldr lhs rhs "tempAnd") lhsExpr rhsExpr
         | SpecificCall <@@ (||) @@> (_, _, [lhsExpr; rhsExpr]) ->
             shortCircuit false lhsExpr rhsExpr
-        | SpecificCall <@@ (|||) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            implBinOp (fun lhs rhs -> LGC.buildOr bldr lhs rhs "tempOr") lhsExpr rhsExpr
 
-        // bitwise ops other than &&&, ||| and ~~~
-        // TODO:
-        //  add ^^^, <<<, >>> here. Note that LLVM expects both shift operands to be
-        //  the same type which is different than F#
+        // bitwise ops (other than ~~~)
+        | SpecificCall <@@ (&&&) @@> (_, _, [lhsExpr; rhsExpr]) ->
+            let binOp bldr lhs rhs =
+                LGC.buildAnd bldr lhs rhs "tempAnd"
+            implBinOp bb binOp lhsExpr rhsExpr
+        | SpecificCall <@@ (|||) @@> (_, _, [lhsExpr; rhsExpr]) ->
+            let binOp bldr lhs rhs =
+                LGC.buildOr bldr lhs rhs "tempOr"
+            implBinOp bb binOp lhsExpr rhsExpr
+        | SpecificCall <@@ (^^^) @@> (_, _, [lhsExpr; rhsExpr]) ->
+            let binOp bldr lhs rhs =
+                LGC.buildXor bldr lhs rhs "tempXOr"
+            implBinOp bb binOp lhsExpr rhsExpr
+        | SpecificCall <@@ (>>>) @@> (_, _, [lhsExpr; rhsExpr]) ->
+            let binOp bldr lhs rhs =
+                // both arguments to the shift instruction must be the same integer or
+                // vector of integer type.
+                let lhsSize = intTySize lhsExpr.Type
+                let rhsSize = intTySize rhsExpr.Type
+                let rhs =
+                    if lhsSize > rhsSize then
+                        // we must extend the LHS
+                        LGC.buildZExt bldr rhs (LGC.typeOf lhs) ""
+                    elif lhsSize < rhsSize then
+                        // we must truncate the RHS
+                        LGC.buildTrunc bldr rhs (LGC.typeOf lhs) ""
+                    else
+                        rhs
+
+                // if it's a signed type in F# then we need to use "arithmetic" shift
+                if isSignedInt lhsExpr.Type then
+                    LGC.buildAShr bldr lhs rhs ""
+                else
+                    LGC.buildLShr bldr lhs rhs ""
+
+            implBinOp bb binOp lhsExpr rhsExpr
+        | SpecificCall <@@ (<<<) @@> (_, _, [lhsExpr; rhsExpr]) ->
+            let binOp bldr lhs rhs =
+                // both arguments to the shift instruction must be the same integer or
+                // vector of integer type.
+                let lhsSize = intTySize lhsExpr.Type
+                let rhsSize = intTySize rhsExpr.Type
+                let rhs =
+                    if lhsSize > rhsSize then
+                        // we must extend the LHS
+                        LGC.buildZExt bldr rhs (LGC.typeOf lhs) ""
+                    elif lhsSize < rhsSize then
+                        // we must truncate the RHS
+                        LGC.buildTrunc bldr rhs (LGC.typeOf lhs) ""
+                    else
+                        rhs
+
+                LGC.buildShl bldr lhs rhs ""
+
+            implBinOp bb binOp lhsExpr rhsExpr
 
         // arithmetic operations
         | SpecificCall <@@ op_UnaryNegation @@> (_, _, [exprToNegate]) ->
             let valToNeg, bb = implementSomeExpr bb valMap exprToNegate
-            let bldr = new LC.Builder(bb)
+            use bldr = new LC.Builder(bb)
             let negVal =
                 match exprToNegate.Type with
                 | AnyIntTy -> LGC.buildNeg bldr valToNeg "tempNeg"
@@ -579,47 +629,42 @@ let private implementFunction
                 | _ -> failwith "internal error: bad args for unary (-)"
             Some negVal, bb
         | SpecificCall <@@ (-) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnyIntTy, AnyIntTy -> LGC.buildSub bldr lhs rhs "tempSub"
                 | AnyFloatTy, AnyFloatTy -> LGC.buildFSub bldr lhs rhs "tempFSub"
                 | _ -> failwith "internal error: bad args for (-)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
         | SpecificCall <@@ (+) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnyIntTy, AnyIntTy -> LGC.buildAdd bldr lhs rhs "tempAdd"
                 | AnyFloatTy, AnyFloatTy -> LGC.buildFAdd bldr lhs rhs "tempFAdd"
                 | _ -> failwith "internal error: bad args for (+)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
         | SpecificCall <@@ (*) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnyIntTy, AnyIntTy -> LGC.buildMul bldr lhs rhs "tempSMul"
                 | AnyFloatTy, AnyFloatTy -> LGC.buildFMul bldr lhs rhs "tempFMul"
                 | _ -> failwith "internal error: bad args for (*)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
         | SpecificCall <@@ (/) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnySIntTy, AnySIntTy -> LGC.buildSDiv bldr lhs rhs "tempSDiv"
                 | AnyUIntTy, AnyUIntTy -> LGC.buildUDiv bldr lhs rhs "tempUDiv"
                 | AnyFloatTy, AnyFloatTy -> LGC.buildFDiv bldr lhs rhs "tempFDiv"
                 | _ -> failwith "internal error: bad args for (/)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
         | SpecificCall <@@ (%) @@> (_, _, [lhsExpr; rhsExpr]) ->
-            use bldr = new LC.Builder(bb)
-            let binOp lhs rhs =
+            let binOp bldr lhs rhs =
                 match lhsExpr.Type, rhsExpr.Type with
                 | AnySIntTy, AnySIntTy -> LGC.buildSRem bldr lhs rhs "tempSRem"
                 | AnyUIntTy, AnyUIntTy -> LGC.buildURem bldr lhs rhs "tempURem"
                 | AnyFloatTy, AnyFloatTy -> LGC.buildFRem bldr lhs rhs "tempFRem"
                 | _ -> failwith "internal error: bad args for (>)"
-            implBinOp binOp lhsExpr rhsExpr
+            implBinOp bb binOp lhsExpr rhsExpr
 
         // memory management
         | SpecificCall <@@ free @@> (_, _, [exprToFree]) ->

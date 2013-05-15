@@ -102,6 +102,15 @@ let testQuote =
             arr.[2] <- z
             arr
 
+        let shl3 (x:int) : int =
+            x <<< 3
+        let sshr (x:int) (bits:int) : int =
+            x >>> bits
+        let ushr (x:uint32) (bits:int) : uint32 =
+            x >>> bits
+        let shortshr (x:int16) (bits:int) : int16 =
+            x >>> bits
+
         ()
     @>
 

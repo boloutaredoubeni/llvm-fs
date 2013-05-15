@@ -1545,6 +1545,8 @@ namespace LLVM
     val private ( |UInt32Ty|_| ) : System.Type -> unit option
     val private ( |Int64Ty|_| ) : System.Type -> unit option
     val private ( |UInt64Ty|_| ) : System.Type -> unit option
+    val intTySize : System.Type -> int
+    val isSignedInt : System.Type -> bool
     val private ( |AnySIntTy|_| ) : System.Type -> unit option
     val private ( |AnyUIntTy|_| ) : System.Type -> unit option
     val private ( |AnyIntTy|_| ) : System.Type -> unit option

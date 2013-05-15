@@ -10,6 +10,10 @@ extern int* makeArr();
 extern double* transpose(double*, int);
 extern double* matMult(double*, int, int, double*, int);
 extern double* solveWithGaussAndBackSub(double*, double*, int);
+extern int shl3(int);
+extern int sshr(int, int);
+extern int ushr(int, int);
+extern short shortshr(short, int);
 
 void printMat(double* mat, int rowCount, int colCount) {
     int row;
@@ -34,6 +38,11 @@ int main(int argc, const char* argv[])
     printf("sum869() -> %i\n", sum869());
     printf("sumUsingWhile() -> %i\n", sumUsingWhile(xs, 3));
     printf("sumDoublesOnStack() -> %f\n", sumDoublesOnStack());
+    printf("shl3(1) -> %i\n", shl3(1));
+    printf("sshr(shl3(1), 2) -> %i\n", sshr(shl3(1), 2));
+    printf("sshr(-16, 2) -> %i\n", sshr(-16, 2));
+    printf("ushr(-16, 2) -> %i\n", ushr(-16, 2));
+    printf("shortshr(16, 2) -> %i\n", shortshr((short)16, 2));
     
     double sqMat[] = {
         1.0, 2.0, 3.0,
