@@ -29,7 +29,7 @@ let normArgs = function
 %token <string> NAME
 %token SEMICOL COMMA ASTER LPAREN RPAREN EOF LCURL RCURL LSQUARE RSQUARE
 %token STRUCT ENUM TYPEDEF EQ SHIFTL
-%token CONST VOID CHAR INT LONG DOUBLE FLOAT UNSIGNED SHORT UINT8 UINT64 STATIC INLINE
+%token CONST VOID CHAR INT LONG DOUBLE FLOAT UNSIGNED SHORT UINT8 UINT64 SIZE_T STATIC INLINE
 
 // This is the type of the data produced by a successful reduction of the 'start'
 // symbol:
@@ -48,6 +48,14 @@ Def:
     | TYPEDEF ENUM LCURL EnumVals RCURL NAME SEMICOL    { Some (CEnumDef ($6, $4)) }
     | ENUM NAME LCURL EnumVals RCURL SEMICOL            { Some (CEnumDef ($2, $4)) }
     | TYPEDEF HackType NAME SEMICOL                     { Some (CTypeAlias ($2, $3)) }
+    | STRUCT NAME LCURL StructMemDefs RCURL SEMICOL     { Some (CStructDef $2) }
+
+StructMemDefs:
+    | StructMemDef StructMemDefs { None }
+    |                            { None }
+
+StructMemDef:
+    | HackType NAME SEMICOL { None }
 
 FuncDef:
     | STATIC INLINE HackType NAME LPAREN Params RPAREN LCURL RCURL
@@ -93,6 +101,7 @@ BaseType:
     | UNSIGNED              { UnsignedIntType }
     | UINT8                 { UnsignedByteType }
     | UINT64                { UnsignedLongLongType }
+    | SIZE_T                { SizeTType }
     | DOUBLE                { DoubleType }
 
 Params:

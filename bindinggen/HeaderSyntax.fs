@@ -10,6 +10,7 @@ type CBaseType =
     | UnsignedLongLongType
     | LongLongType
     | UnsignedByteType
+    | SizeTType
     | DoubleType
     override self.ToString() =
         match self with
@@ -22,6 +23,7 @@ type CBaseType =
         | UnsignedLongLongType -> "unsigned long long"
         | LongLongType -> "long long"
         | UnsignedByteType -> "uint8_t"
+        | SizeTType -> "size_t"
         | DoubleType -> "double"
 
 type CFullType = {
@@ -39,5 +41,6 @@ type CFullType = {
 type CDef =
     | CFuncDef of CFullType * string * (CFullType * string option) list
     | CEnumDef of string * (string * int option) list
+    | CStructDef of string
     | CTypeAlias of CFullType * string
 

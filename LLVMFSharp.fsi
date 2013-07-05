@@ -245,8 +245,36 @@ namespace LLVM.Generated
     type LandingPadClauseTy =
       |  LandingPadCatch  =  0
       |  LandingPadFilter  =  1
+    type ThreadLocalMode =
+      |  NotThreadLocal  =  0
+      |  GeneralDynamicTLSModel  =  1
+      |  LocalDynamicTLSModel  =  2
+      |  InitialExecTLSModel  =  3
+      |  LocalExecTLSModel  =  4
+    type AtomicOrdering =
+      |  AtomicOrderingNotAtomic  =  0
+      |  AtomicOrderingUnordered  =  1
+      |  AtomicOrderingMonotonic  =  2
+      |  AtomicOrderingAcquire  =  4
+      |  AtomicOrderingRelease  =  5
+      |  AtomicOrderingAcquireRelease  =  6
+      |  AtomicOrderingSequentiallyConsistent  =  7
+    type AtomicRMWBinOp =
+      |  AtomicRMWBinOpXchg  =  0
+      |  AtomicRMWBinOpAdd  =  1
+      |  AtomicRMWBinOpSub  =  2
+      |  AtomicRMWBinOpAnd  =  3
+      |  AtomicRMWBinOpNand  =  4
+      |  AtomicRMWBinOpOr  =  5
+      |  AtomicRMWBinOpXor  =  6
+      |  AtomicRMWBinOpMax  =  7
+      |  AtomicRMWBinOpMin  =  8
+      |  AtomicRMWBinOpUMax  =  9
+      |  AtomicRMWBinOpUMin  =  10
     val initializeCoreNative : nativeint -> unit
     val initializeCore : PassRegistryRef -> unit
+    val shutdownNative : unit -> unit
+    val shutdown : unit -> unit
     val contextCreateNative : unit -> nativeint
     val contextCreate : unit -> ContextRef
     val getGlobalContextNative : unit -> nativeint
@@ -650,6 +678,14 @@ namespace LLVM.Generated
     val isGlobalConstant : ValueRef -> bool
     val setGlobalConstantNative : nativeint * bool -> unit
     val setGlobalConstant : ValueRef -> bool -> unit
+    val getThreadLocalModeNative : nativeint -> int
+    val getThreadLocalMode : ValueRef -> ThreadLocalMode
+    val setThreadLocalModeNative : nativeint * int -> unit
+    val setThreadLocalMode : ValueRef -> ThreadLocalMode -> unit
+    val isExternallyInitializedNative : nativeint -> bool
+    val isExternallyInitialized : ValueRef -> bool
+    val setExternallyInitializedNative : nativeint * bool -> unit
+    val setExternallyInitialized : ValueRef -> bool -> unit
     val addAliasNative : nativeint * nativeint * nativeint * string -> nativeint
     val addAlias : ModuleRef -> TypeRef -> ValueRef -> string -> ValueRef
     val deleteFunctionNative : nativeint -> unit
@@ -666,6 +702,9 @@ namespace LLVM.Generated
     val setGC : ValueRef -> string -> unit
     val addFunctionAttrNative : nativeint * int -> unit
     val addFunctionAttr : ValueRef -> Attribute -> unit
+    val addTargetDependentFunctionAttrNative :
+      nativeint * string * string -> unit
+    val addTargetDependentFunctionAttr : ValueRef -> string -> string -> unit
     val getFunctionAttrNative : nativeint -> int
     val getFunctionAttr : ValueRef -> Attribute
     val removeFunctionAttrNative : nativeint * int -> unit
@@ -1077,6 +1116,12 @@ namespace LLVM.Generated
     val buildPtrDiffNative :
       nativeint * nativeint * nativeint * string -> nativeint
     val buildPtrDiff : BuilderRef -> ValueRef -> ValueRef -> string -> ValueRef
+    val buildAtomicRMWNative :
+      nativeint * int * nativeint * nativeint * int * bool -> nativeint
+    val buildAtomicRMW :
+      BuilderRef ->
+        AtomicRMWBinOp ->
+          ValueRef -> ValueRef -> AtomicOrdering -> bool -> ValueRef
     val createModuleProviderForExistingModuleNative : nativeint -> nativeint
     val createModuleProviderForExistingModule : ModuleRef -> ModuleProviderRef
     val disposeModuleProviderNative : nativeint -> unit
@@ -1084,6 +1129,18 @@ namespace LLVM.Generated
     val createMemoryBufferWithContentsOfFileNative :
       string * nativeint * nativeint -> bool
     val createMemoryBufferWithSTDINNative : nativeint * nativeint -> bool
+    val createMemoryBufferWithMemoryRangeNative :
+      string * nativeint * string * bool -> nativeint
+    val createMemoryBufferWithMemoryRange :
+      string -> nativeint -> string -> bool -> MemoryBufferRef
+    val createMemoryBufferWithMemoryRangeCopyNative :
+      string * nativeint * string -> nativeint
+    val createMemoryBufferWithMemoryRangeCopy :
+      string -> nativeint -> string -> MemoryBufferRef
+    val getBufferStartNative : nativeint -> nativeint
+    val getBufferStart : MemoryBufferRef -> string
+    val getBufferSizeNative : nativeint -> nativeint
+    val getBufferSize : MemoryBufferRef -> nativeint
     val disposeMemoryBufferNative : nativeint -> unit
     val disposeMemoryBuffer : MemoryBufferRef -> unit
     val getGlobalPassRegistryNative : unit -> nativeint
@@ -1104,6 +1161,12 @@ namespace LLVM.Generated
     val finalizeFunctionPassManager : PassManagerRef -> bool
     val disposePassManagerNative : nativeint -> unit
     val disposePassManager : PassManagerRef -> unit
+    val startMultithreadedNative : unit -> bool
+    val startMultithreaded : unit -> bool
+    val stopMultithreadedNative : unit -> unit
+    val stopMultithreaded : unit -> unit
+    val isMultithreadedNative : unit -> bool
+    val isMultithreaded : unit -> bool
   end
 namespace LLVM.Generated
   module BitReader = begin
@@ -1194,6 +1257,8 @@ namespace LLVM.Generated
   module ExecutionEngine = begin
     val linkInJITNative : unit -> unit
     val linkInJIT : unit -> unit
+    val linkInMCJITNative : unit -> unit
+    val linkInMCJIT : unit -> unit
     val linkInInterpreterNative : unit -> unit
     val linkInInterpreter : unit -> unit
     type GenericValueRef =
@@ -1229,6 +1294,9 @@ namespace LLVM.Generated
       nativeint * nativeint * nativeint -> bool
     val createJITCompilerForModuleNative :
       nativeint * nativeint * uint32 * nativeint -> bool
+    val initializeMCJITCompilerOptionsNative : nativeint * nativeint -> unit
+    val createMCJITCompilerForModuleNative :
+      nativeint * nativeint * nativeint * nativeint * nativeint -> bool
     val createExecutionEngineNative : nativeint * nativeint * nativeint -> bool
     val createInterpreterNative : nativeint * nativeint * nativeint -> bool
     val createJITCompilerNative :

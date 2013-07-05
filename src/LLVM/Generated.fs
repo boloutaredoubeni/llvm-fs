@@ -221,6 +221,35 @@ namespace LLVM.Generated
             | LandingPadCatch = 0
             | LandingPadFilter = 1
 
+        type ThreadLocalMode =
+            | NotThreadLocal = 0
+            | GeneralDynamicTLSModel = 1
+            | LocalDynamicTLSModel = 2
+            | InitialExecTLSModel = 3
+            | LocalExecTLSModel = 4
+
+        type AtomicOrdering =
+            | AtomicOrderingNotAtomic = 0
+            | AtomicOrderingUnordered = 1
+            | AtomicOrderingMonotonic = 2
+            | AtomicOrderingAcquire = 4
+            | AtomicOrderingRelease = 5
+            | AtomicOrderingAcquireRelease = 6
+            | AtomicOrderingSequentiallyConsistent = 7
+
+        type AtomicRMWBinOp =
+            | AtomicRMWBinOpXchg = 0
+            | AtomicRMWBinOpAdd = 1
+            | AtomicRMWBinOpSub = 2
+            | AtomicRMWBinOpAnd = 3
+            | AtomicRMWBinOpNand = 4
+            | AtomicRMWBinOpOr = 5
+            | AtomicRMWBinOpXor = 6
+            | AtomicRMWBinOpMax = 7
+            | AtomicRMWBinOpMin = 8
+            | AtomicRMWBinOpUMax = 9
+            | AtomicRMWBinOpUMin = 10
+
         [<DllImport(
             llvmAssemblyName,
             EntryPoint="LLVMInitializeCore",
@@ -230,6 +259,15 @@ namespace LLVM.Generated
             void* (* LLVMPassRegistryRef *) R)
         let initializeCore _R =
             initializeCoreNative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMShutdown",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void shutdownNative()
+        let shutdown () =
+            shutdownNative ()
 
         // LLVMDisposeMessage is blacklisted by the binding generator
 
@@ -2382,6 +2420,48 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMGetThreadLocalMode",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern int (* LLVMThreadLocalMode *) getThreadLocalModeNative(
+            void* (* LLVMValueRef *) GlobalVar)
+        let getThreadLocalMode _GlobalVar =
+            enum<ThreadLocalMode> (getThreadLocalModeNative ((_GlobalVar : ValueRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMSetThreadLocalMode",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void setThreadLocalModeNative(
+            void* (* LLVMValueRef *) GlobalVar,
+            int (* LLVMThreadLocalMode *) Mode)
+        let setThreadLocalMode _GlobalVar _Mode =
+            setThreadLocalModeNative ((_GlobalVar : ValueRef).Ptr, (int (_Mode : ThreadLocalMode)))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMIsExternallyInitialized",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool isExternallyInitializedNative(
+            void* (* LLVMValueRef *) GlobalVar)
+        let isExternallyInitialized _GlobalVar =
+            isExternallyInitializedNative ((_GlobalVar : ValueRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMSetExternallyInitialized",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void setExternallyInitializedNative(
+            void* (* LLVMValueRef *) GlobalVar,
+            bool IsExtInit)
+        let setExternallyInitialized _GlobalVar _IsExtInit =
+            setExternallyInitializedNative ((_GlobalVar : ValueRef).Ptr, _IsExtInit)
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMAddAlias",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -2465,6 +2545,18 @@ namespace LLVM.Generated
             int (* LLVMAttribute *) PA)
         let addFunctionAttr _Fn _PA =
             addFunctionAttrNative ((_Fn : ValueRef).Ptr, (int (_PA : Attribute)))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMAddTargetDependentFunctionAttr",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void addTargetDependentFunctionAttrNative(
+            void* (* LLVMValueRef *) Fn,
+            string A,
+            string V)
+        let addTargetDependentFunctionAttr _Fn _A _V =
+            addTargetDependentFunctionAttrNative ((_Fn : ValueRef).Ptr, _A, _V)
 
         [<DllImport(
             llvmAssemblyName,
@@ -4455,6 +4547,21 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMBuildAtomicRMW",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMValueRef *) buildAtomicRMWNative(
+            void* (* LLVMBuilderRef *) B,
+            int (* LLVMAtomicRMWBinOp *) op,
+            void* (* LLVMValueRef *) PTR,
+            void* (* LLVMValueRef *) Val,
+            int (* LLVMAtomicOrdering *) ordering,
+            bool singleThread)
+        let buildAtomicRMW _B _op _PTR _Val _ordering _singleThread =
+            new ValueRef (buildAtomicRMWNative ((_B : BuilderRef).Ptr, (int (_op : AtomicRMWBinOp)), (_PTR : ValueRef).Ptr, (_Val : ValueRef).Ptr, (int (_ordering : AtomicOrdering)), _singleThread))
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMCreateModuleProviderForExistingModule",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -4493,6 +4600,51 @@ namespace LLVM.Generated
             void* (* LLVMMemoryBufferRef* *) OutMemBuf,
             void* OutMessage)
         // I don't know how to generate an "F# friendly" version of LLVMCreateMemoryBufferWithSTDIN
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMCreateMemoryBufferWithMemoryRange",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMMemoryBufferRef *) createMemoryBufferWithMemoryRangeNative(
+            string InputData,
+            nativeint (* size_t *) InputDataLength,
+            string BufferName,
+            bool RequiresNullTerminator)
+        let createMemoryBufferWithMemoryRange _InputData _InputDataLength _BufferName _RequiresNullTerminator =
+            new MemoryBufferRef (createMemoryBufferWithMemoryRangeNative (_InputData, _InputDataLength, _BufferName, _RequiresNullTerminator))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMCreateMemoryBufferWithMemoryRangeCopy",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMMemoryBufferRef *) createMemoryBufferWithMemoryRangeCopyNative(
+            string InputData,
+            nativeint (* size_t *) InputDataLength,
+            string BufferName)
+        let createMemoryBufferWithMemoryRangeCopy _InputData _InputDataLength _BufferName =
+            new MemoryBufferRef (createMemoryBufferWithMemoryRangeCopyNative (_InputData, _InputDataLength, _BufferName))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetBufferStart",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getBufferStartNative(
+            void* (* LLVMMemoryBufferRef *) MemBuf)
+        let getBufferStart _MemBuf =
+            Marshal.PtrToStringAuto (getBufferStartNative ((_MemBuf : MemoryBufferRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetBufferSize",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern nativeint (* size_t *) getBufferSizeNative(
+            void* (* LLVMMemoryBufferRef *) MemBuf)
+        let getBufferSize _MemBuf =
+            getBufferSizeNative ((_MemBuf : MemoryBufferRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -4593,6 +4745,33 @@ namespace LLVM.Generated
             void* (* LLVMPassManagerRef *) PM)
         let disposePassManager _PM =
             disposePassManagerNative ((_PM : PassManagerRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMStartMultithreaded",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool startMultithreadedNative()
+        let startMultithreaded () =
+            startMultithreadedNative ()
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMStopMultithreaded",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void stopMultithreadedNative()
+        let stopMultithreaded () =
+            stopMultithreadedNative ()
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMIsMultithreaded",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool isMultithreadedNative()
+        let isMultithreaded () =
+            isMultithreadedNative ()
 
 // This file should not be edited. It is automatically generated from a C header file
 namespace LLVM.Generated
@@ -4967,6 +5146,15 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMLinkInMCJIT",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void linkInMCJITNative()
+        let linkInMCJIT () =
+            linkInMCJITNative ()
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMLinkInInterpreter",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -5098,6 +5286,29 @@ namespace LLVM.Generated
             uint32 OptLevel,
             void* OutError)
         // I don't know how to generate an "F# friendly" version of LLVMCreateJITCompilerForModule
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeMCJITCompilerOptions",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeMCJITCompilerOptionsNative(
+            void* (* struct struct LLVMMCJITCompilerOptions** *) Options,
+            nativeint (* size_t *) SizeOfOptions)
+        // I don't know how to generate an "F# friendly" version of LLVMInitializeMCJITCompilerOptions
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMCreateMCJITCompilerForModule",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool createMCJITCompilerForModuleNative(
+            void* (* LLVMExecutionEngineRef* *) OutJIT,
+            void* (* LLVMModuleRef *) M,
+            void* (* struct struct LLVMMCJITCompilerOptions** *) Options,
+            nativeint (* size_t *) SizeOfOptions,
+            void* OutError)
+        // I don't know how to generate an "F# friendly" version of LLVMCreateMCJITCompilerForModule
 
         [<DllImport(
             llvmAssemblyName,

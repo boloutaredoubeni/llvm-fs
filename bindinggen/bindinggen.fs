@@ -110,7 +110,10 @@ let toFSharpSource
                         else
                             failwith (sprintf "don't know how to deal with: %s" typeName)
                     | StructType typeName ->
-                        failwith "can't deal with naked struct type"
+                        if cType.pointerDepth = 1 then
+                            sprintf "void* (* struct %s* *)" (cType.ToString ())
+                        else
+                            failwith "can't deal with naked struct type"
                     | IntType -> defPtrAdj "int"
                     | VoidType -> defPtrAdj "void"
                     | CharType ->
@@ -129,6 +132,7 @@ let toFSharpSource
                     | UnsignedLongLongType -> defPtrAdj "uint64"
                     | LongLongType -> defPtrAdj "int64"
                     | UnsignedByteType -> defPtrAdj "uint8"
+                    | SizeTType -> defPtrAdj "nativeint (* size_t *)"
                     | DoubleType -> defPtrAdj "double"
 
                 if blacklistedFuncs.Contains fName then
@@ -160,7 +164,7 @@ let toFSharpSource
                             match t.baseType with
                             | GeneralType _ | StructType _ | IntType | VoidType
                             | UnsignedIntType | UnsignedLongLongType | LongLongType
-                            | UnsignedByteType | DoubleType ->
+                            | UnsignedByteType | DoubleType | SizeTType ->
                                 t.pointerDepth = 0
                             | CharType ->
                                 t.pointerDepth <= 1
