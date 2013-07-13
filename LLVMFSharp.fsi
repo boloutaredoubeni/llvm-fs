@@ -275,6 +275,8 @@ namespace LLVM.Generated
     val initializeCore : PassRegistryRef -> unit
     val shutdownNative : unit -> unit
     val shutdown : unit -> unit
+    val createMessageNative : string -> nativeint
+    val createMessage : string -> string
     val contextCreateNative : unit -> nativeint
     val contextCreate : unit -> ContextRef
     val getGlobalContextNative : unit -> nativeint
@@ -1271,6 +1273,12 @@ namespace LLVM.Generated
       class
         interface FFIUtil.ILLVMRef
         new : thePtr:nativeint -> ExecutionEngineRef
+        member Ptr : nativeint
+      end
+    type MCJITMemoryManagerRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> MCJITMemoryManagerRef
         member Ptr : nativeint
       end
     val createGenericValueOfIntNative : nativeint * uint64 * bool -> nativeint

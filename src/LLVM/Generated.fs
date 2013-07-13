@@ -269,6 +269,16 @@ namespace LLVM.Generated
         let shutdown () =
             shutdownNative ()
 
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMCreateMessage",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* createMessageNative(
+            string Message)
+        let createMessage _Message =
+            Marshal.PtrToStringAuto (createMessageNative (_Message))
+
         // LLVMDisposeMessage is blacklisted by the binding generator
 
         [<DllImport(
@@ -5170,6 +5180,10 @@ namespace LLVM.Generated
             member x.Ptr = (x :> ILLVMRef).Ptr
             interface ILLVMRef with member x.Ptr = thePtr
 
+        type MCJITMemoryManagerRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
         [<DllImport(
             llvmAssemblyName,
             EntryPoint="LLVMCreateGenericValueOfInt",
@@ -5507,6 +5521,10 @@ namespace LLVM.Generated
             void* (* LLVMExecutionEngineRef *) EE,
             void* (* LLVMValueRef *) Global)
         // I don't know how to generate an "F# friendly" version of LLVMGetPointerToGlobal
+
+        // LLVMCreateSimpleMCJITMemoryManager is blacklisted by the binding generator
+
+        // LLVMDisposeMCJITMemoryManager is blacklisted by the binding generator
 
 // This file should not be edited. It is automatically generated from a C header file
 namespace LLVM.Generated

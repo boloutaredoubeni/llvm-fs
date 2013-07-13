@@ -20,7 +20,7 @@ fsc --nologo \
 # run bindinggen.exe directly
 if hash mono &> /dev/null; then
     #mono bindinggen.exe ~/bin/llvm-3.1 src/LLVM/Generated.fs
-    mono bindinggen.exe ~/projects/third-party/llvm-3.3.src src/LLVM/Generated.fs
+    mono bindinggen.exe ~/projects/third-party/llvm-git src/LLVM/Generated.fs
 else
     bindinggen.exe LLVM-3.1.dll C:\\Users\\keith\\Desktop\\projects\\llvm-3.1 src\\LLVM\\Generated.fs
 fi

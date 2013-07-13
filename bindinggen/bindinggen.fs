@@ -71,7 +71,12 @@ let toFSharpSource
         (defs : CDef list) =
 
     // using a black-list to prevent auto-generation of certain function bindings
-    let blacklistedFuncs = Set.ofList ["LLVMDisposeMessage"]
+    let blacklistedFuncs =
+        Set.ofList [
+            "LLVMDisposeMessage"
+            "LLVMCreateSimpleMCJITMemoryManager"
+            "LLVMDisposeMCJITMemoryManager"
+        ]
 
     let nsLen = moduleName.LastIndexOf '.'
     let simpleModuleName = moduleName.Substring (nsLen + 1)
