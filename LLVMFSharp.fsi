@@ -1381,6 +1381,8 @@ namespace LLVM.Generated.Transforms
     val addLoopUnswitchPass : Core.PassManagerRef -> unit
     val addMemCpyOptPassNative : nativeint -> unit
     val addMemCpyOptPass : Core.PassManagerRef -> unit
+    val addPartiallyInlineLibCallsPassNative : nativeint -> unit
+    val addPartiallyInlineLibCallsPass : Core.PassManagerRef -> unit
     val addPromoteMemoryToRegisterPassNative : nativeint -> unit
     val addPromoteMemoryToRegisterPass : Core.PassManagerRef -> unit
     val addReassociatePassNative : nativeint -> unit

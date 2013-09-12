@@ -5733,6 +5733,16 @@ namespace LLVM.Generated.Transforms
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMAddPartiallyInlineLibCallsPass",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void addPartiallyInlineLibCallsPassNative(
+            void* (* LLVMPassManagerRef *) PM)
+        let addPartiallyInlineLibCallsPass _PM =
+            addPartiallyInlineLibCallsPassNative ((_PM : PassManagerRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMAddPromoteMemoryToRegisterPass",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
