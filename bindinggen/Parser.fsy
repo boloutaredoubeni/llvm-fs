@@ -48,6 +48,7 @@ Def:
     | TYPEDEF ENUM LCURL EnumVals RCURL NAME SEMICOL    { Some (CEnumDef ($6, $4)) }
     | ENUM NAME LCURL EnumVals RCURL SEMICOL            { Some (CEnumDef ($2, $4)) }
     | TYPEDEF HackType NAME SEMICOL                     { Some (CTypeAlias ($2, $3)) }
+    | FuncPointerTypedef                                { $1 }
     | STRUCT NAME LCURL StructMemDefs RCURL SEMICOL     { Some (CStructDef $2) }
 
 StructMemDefs:
@@ -62,6 +63,10 @@ FuncDef:
         { None }
     | HackType NAME LPAREN Params RPAREN SEMICOL
         { Some (CFuncDef ($1, $2, normArgs $4)) }
+
+FuncPointerTypedef:
+    | TYPEDEF FullType LPAREN ASTER NAME RPAREN LPAREN Params RPAREN SEMICOL
+            { Some (CTypeAlias ({baseType = VoidType; isConst = true; pointerDepth = 1}, $5)) }
 
 EnumVals:
     | EnumVal COMMA EnumVals { $1 :: $3 }
@@ -84,11 +89,6 @@ HackType:
 FullType:
     | CONST BaseType Pointers   { {baseType = $2; isConst = true; pointerDepth = $3} }
     | BaseType Pointers         { {baseType = $1; isConst = false; pointerDepth = $2} }
-    | FuncPointerType           { $1 }
-
-FuncPointerType:
-    | FullType LPAREN ASTER NAME RPAREN LPAREN Params RPAREN { {baseType = VoidType; isConst = false; pointerDepth = 1} }
-    | FullType LPAREN ASTER RPAREN LPAREN Params RPAREN      { {baseType = VoidType; isConst = false; pointerDepth = 1} }
 
 Pointers:
     | ASTER Pointers { $2 + 1 }

@@ -304,6 +304,8 @@ namespace LLVM.Generated
     val dumpModuleNative : nativeint -> unit
     val dumpModule : ModuleRef -> unit
     val printModuleToFileNative : nativeint * string * nativeint -> bool
+    val printModuleToStringNative : nativeint -> nativeint
+    val printModuleToString : ModuleRef -> string
     val setModuleInlineAsmNative : nativeint * string -> unit
     val setModuleInlineAsm : ModuleRef -> string -> unit
     val getModuleContextNative : nativeint -> nativeint
@@ -333,6 +335,10 @@ namespace LLVM.Generated
     val typeIsSized : TypeRef -> bool
     val getTypeContextNative : nativeint -> nativeint
     val getTypeContext : TypeRef -> ContextRef
+    val dumpTypeNative : nativeint -> unit
+    val dumpType : TypeRef -> unit
+    val printTypeToStringNative : nativeint -> nativeint
+    val printTypeToString : TypeRef -> string
     val int1TypeInContextNative : nativeint -> nativeint
     val int1TypeInContext : ContextRef -> TypeRef
     val int8TypeInContextNative : nativeint -> nativeint
@@ -1234,6 +1240,12 @@ namespace LLVM.Generated
     val intPtrType : TargetDataRef -> Core.TypeRef
     val intPtrTypeForASNative : nativeint * uint32 -> nativeint
     val intPtrTypeForAS : TargetDataRef -> uint32 -> Core.TypeRef
+    val intPtrTypeInContextNative : nativeint * nativeint -> nativeint
+    val intPtrTypeInContext : Core.ContextRef -> TargetDataRef -> Core.TypeRef
+    val intPtrTypeForASInContextNative :
+      nativeint * nativeint * uint32 -> nativeint
+    val intPtrTypeForASInContext :
+      Core.ContextRef -> TargetDataRef -> uint32 -> Core.TypeRef
     val sizeOfTypeInBitsNative : nativeint * nativeint -> uint64
     val sizeOfTypeInBits : TargetDataRef -> Core.TypeRef -> uint64
     val storeSizeOfTypeNative : nativeint * nativeint -> uint64

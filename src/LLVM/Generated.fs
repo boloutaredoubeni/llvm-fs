@@ -281,6 +281,10 @@ namespace LLVM.Generated
 
         // LLVMDisposeMessage is blacklisted by the binding generator
 
+        // LLVMInstallFatalErrorHandler is blacklisted by the binding generator
+
+        // LLVMResetFatalErrorHandler is blacklisted by the binding generator
+
         [<DllImport(
             llvmAssemblyName,
             EntryPoint="LLVMContextCreate",
@@ -425,6 +429,16 @@ namespace LLVM.Generated
             string Filename,
             void* ErrorMessage)
         // I don't know how to generate an "F# friendly" version of LLVMPrintModuleToFile
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMPrintModuleToString",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* printModuleToStringNative(
+            void* (* LLVMModuleRef *) M)
+        let printModuleToString _M =
+            Marshal.PtrToStringAuto (printModuleToStringNative ((_M : ModuleRef).Ptr))
 
         [<DllImport(
             llvmAssemblyName,
@@ -584,6 +598,26 @@ namespace LLVM.Generated
             void* (* LLVMTypeRef *) Ty)
         let getTypeContext _Ty =
             new ContextRef (getTypeContextNative ((_Ty : TypeRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMDumpType",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void dumpTypeNative(
+            void* (* LLVMTypeRef *) Val)
+        let dumpType _Val =
+            dumpTypeNative ((_Val : TypeRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMPrintTypeToString",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* printTypeToStringNative(
+            void* (* LLVMTypeRef *) Val)
+        let printTypeToString _Val =
+            Marshal.PtrToStringAuto (printTypeToStringNative ((_Val : TypeRef).Ptr))
 
         [<DllImport(
             llvmAssemblyName,
@@ -5023,6 +5057,29 @@ namespace LLVM.Generated
             uint32 AS)
         let intPtrTypeForAS _arg0 _AS =
             new TypeRef (intPtrTypeForASNative ((_arg0 : TargetDataRef).Ptr, _AS))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMIntPtrTypeInContext",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMTypeRef *) intPtrTypeInContextNative(
+            void* (* LLVMContextRef *) arg0,
+            void* (* LLVMTargetDataRef *) arg1)
+        let intPtrTypeInContext _arg0 _arg1 =
+            new TypeRef (intPtrTypeInContextNative ((_arg0 : ContextRef).Ptr, (_arg1 : TargetDataRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMIntPtrTypeForASInContext",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMTypeRef *) intPtrTypeForASInContextNative(
+            void* (* LLVMContextRef *) arg0,
+            void* (* LLVMTargetDataRef *) arg1,
+            uint32 AS)
+        let intPtrTypeForASInContext _arg0 _arg1 _AS =
+            new TypeRef (intPtrTypeForASInContextNative ((_arg0 : ContextRef).Ptr, (_arg1 : TargetDataRef).Ptr, _AS))
 
         [<DllImport(
             llvmAssemblyName,
