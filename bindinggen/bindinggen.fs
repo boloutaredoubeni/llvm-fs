@@ -327,11 +327,13 @@ let main (args : string array) =
                     mTail
         
         let modulesToProcess = [
-            ("Core",                [])
+            ("Support",             [])
+            ("Core",                ["Support"])
             ("BitReader",           ["Core"])
             ("BitWriter",           ["Core"])
             ("Target",              ["Core"])
-            ("ExecutionEngine",     ["Core"; "Target"])
+            ("TargetMachine",       ["Core"; "Target"])
+            ("ExecutionEngine",     ["Core"; "Target"; "TargetMachine"])
             ("Analysis",            ["Core"])
             ("Transforms.Scalar",   ["Core"])
             ("Transforms.IPO",      ["Core"])]

@@ -3,6 +3,7 @@ module LLVM.Core
 open System.Runtime.InteropServices
 open System.Threading
 
+open LLVM.Generated.Support
 open LLVM.Generated.Core
 open LLVM.FFIUtil
 

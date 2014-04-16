@@ -2,6 +2,7 @@ module LLVM.BitReader
 
 open System.Runtime.InteropServices
 
+open LLVM.Generated.Support
 open LLVM.Generated.Core
 open LLVM.Generated.BitReader
 

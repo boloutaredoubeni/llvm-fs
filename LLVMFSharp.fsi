@@ -16,6 +16,17 @@ namespace LLVM
   end
 
 namespace LLVM.Generated
+  module Support = begin
+    type MemoryBufferRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> MemoryBufferRef
+        member Ptr : nativeint
+      end
+    val loadLibraryPermanentlyNative : string -> bool
+    val loadLibraryPermanently : string -> bool
+  end
+namespace LLVM.Generated
   module Core = begin
     type ContextRef =
       class
@@ -57,12 +68,6 @@ namespace LLVM.Generated
       class
         interface FFIUtil.ILLVMRef
         new : thePtr:nativeint -> ModuleProviderRef
-        member Ptr : nativeint
-      end
-    type MemoryBufferRef =
-      class
-        interface FFIUtil.ILLVMRef
-        new : thePtr:nativeint -> MemoryBufferRef
         member Ptr : nativeint
       end
     type PassManagerRef =
@@ -151,6 +156,7 @@ namespace LLVM.Generated
       |  PtrToInt  =  39
       |  IntToPtr  =  40
       |  BitCast  =  41
+      |  AddrSpaceCast  =  60
       |  ICmp  =  42
       |  FCmp  =  43
       |  PHI  =  44
@@ -208,10 +214,16 @@ namespace LLVM.Generated
       |  DefaultVisibility  =  0
       |  HiddenVisibility  =  1
       |  ProtectedVisibility  =  2
+    type DLLStorageClass =
+      |  DefaultStorageClass  =  0
+      |  DLLImportStorageClass  =  1
+      |  DLLExportStorageClass  =  2
     type CallConv =
       |  CCallConv  =  0
       |  FastCallConv  =  8
       |  ColdCallConv  =  9
+      |  WebKitJSCallConv  =  12
+      |  AnyRegCallConv  =  13
       |  X86StdcallCallConv  =  64
       |  X86FastcallCallConv  =  65
     type IntPredicate =
@@ -277,6 +289,8 @@ namespace LLVM.Generated
     val shutdown : unit -> unit
     val createMessageNative : string -> nativeint
     val createMessage : string -> string
+    val enablePrettyStackTraceNative : unit -> unit
+    val enablePrettyStackTrace : unit -> unit
     val contextCreateNative : unit -> nativeint
     val contextCreate : unit -> ContextRef
     val getGlobalContextNative : unit -> nativeint
@@ -446,6 +460,8 @@ namespace LLVM.Generated
     val setValueName : ValueRef -> string -> unit
     val dumpValueNative : nativeint -> unit
     val dumpValue : ValueRef -> unit
+    val printValueToStringNative : nativeint -> nativeint
+    val printValueToString : ValueRef -> string
     val replaceAllUsesWithNative : nativeint * nativeint -> unit
     val replaceAllUsesWith : ValueRef -> ValueRef -> unit
     val isConstantNative : nativeint -> bool
@@ -605,6 +621,8 @@ namespace LLVM.Generated
     val constIntToPtr : ValueRef -> TypeRef -> ValueRef
     val constBitCastNative : nativeint * nativeint -> nativeint
     val constBitCast : ValueRef -> TypeRef -> ValueRef
+    val constAddrSpaceCastNative : nativeint * nativeint -> nativeint
+    val constAddrSpaceCast : ValueRef -> TypeRef -> ValueRef
     val constZExtOrBitCastNative : nativeint * nativeint -> nativeint
     val constZExtOrBitCast : ValueRef -> TypeRef -> ValueRef
     val constSExtOrBitCastNative : nativeint * nativeint -> nativeint
@@ -652,6 +670,14 @@ namespace LLVM.Generated
     val getVisibility : ValueRef -> Visibility
     val setVisibilityNative : nativeint * int -> unit
     val setVisibility : ValueRef -> Visibility -> unit
+    val getDLLStorageClassNative : nativeint -> int
+    val getDLLStorageClass : ValueRef -> DLLStorageClass
+    val setDLLStorageClassNative : nativeint * int -> unit
+    val setDLLStorageClass : ValueRef -> DLLStorageClass -> unit
+    val hasUnnamedAddrNative : nativeint -> bool
+    val hasUnnamedAddr : ValueRef -> bool
+    val setUnnamedAddrNative : nativeint * bool -> unit
+    val setUnnamedAddr : ValueRef -> bool -> unit
     val getAlignmentNative : nativeint -> uint32
     val getAlignment : ValueRef -> uint32
     val setAlignmentNative : nativeint * uint32 -> unit
@@ -1052,6 +1078,10 @@ namespace LLVM.Generated
     val buildBitCastNative :
       nativeint * nativeint * nativeint * string -> nativeint
     val buildBitCast : BuilderRef -> ValueRef -> TypeRef -> string -> ValueRef
+    val buildAddrSpaceCastNative :
+      nativeint * nativeint * nativeint * string -> nativeint
+    val buildAddrSpaceCast :
+      BuilderRef -> ValueRef -> TypeRef -> string -> ValueRef
     val buildZExtOrBitCastNative :
       nativeint * nativeint * nativeint * string -> nativeint
     val buildZExtOrBitCast :
@@ -1124,6 +1154,8 @@ namespace LLVM.Generated
     val buildPtrDiffNative :
       nativeint * nativeint * nativeint * string -> nativeint
     val buildPtrDiff : BuilderRef -> ValueRef -> ValueRef -> string -> ValueRef
+    val buildFenceNative : nativeint * int * bool * string -> nativeint
+    val buildFence : BuilderRef -> AtomicOrdering -> bool -> string -> ValueRef
     val buildAtomicRMWNative :
       nativeint * int * nativeint * nativeint * int * bool -> nativeint
     val buildAtomicRMW :
@@ -1140,17 +1172,17 @@ namespace LLVM.Generated
     val createMemoryBufferWithMemoryRangeNative :
       string * nativeint * string * bool -> nativeint
     val createMemoryBufferWithMemoryRange :
-      string -> nativeint -> string -> bool -> MemoryBufferRef
+      string -> nativeint -> string -> bool -> Support.MemoryBufferRef
     val createMemoryBufferWithMemoryRangeCopyNative :
       string * nativeint * string -> nativeint
     val createMemoryBufferWithMemoryRangeCopy :
-      string -> nativeint -> string -> MemoryBufferRef
+      string -> nativeint -> string -> Support.MemoryBufferRef
     val getBufferStartNative : nativeint -> nativeint
-    val getBufferStart : MemoryBufferRef -> string
+    val getBufferStart : Support.MemoryBufferRef -> string
     val getBufferSizeNative : nativeint -> nativeint
-    val getBufferSize : MemoryBufferRef -> nativeint
+    val getBufferSize : Support.MemoryBufferRef -> nativeint
     val disposeMemoryBufferNative : nativeint -> unit
-    val disposeMemoryBuffer : MemoryBufferRef -> unit
+    val disposeMemoryBuffer : Support.MemoryBufferRef -> unit
     val getGlobalPassRegistryNative : unit -> nativeint
     val getGlobalPassRegistry : unit -> PassRegistryRef
     val createPassManagerNative : unit -> nativeint
@@ -1215,12 +1247,6 @@ namespace LLVM.Generated
         new : thePtr:nativeint -> TargetLibraryInfoRef
         member Ptr : nativeint
       end
-    type StructLayoutRef =
-      class
-        interface FFIUtil.ILLVMRef
-        new : thePtr:nativeint -> StructLayoutRef
-        member Ptr : nativeint
-      end
     val createTargetDataNative : string -> nativeint
     val createTargetData : string -> TargetDataRef
     val addTargetDataNative : nativeint * nativeint -> unit
@@ -1266,6 +1292,88 @@ namespace LLVM.Generated
     val offsetOfElement : TargetDataRef -> Core.TypeRef -> uint32 -> uint64
     val disposeTargetDataNative : nativeint -> unit
     val disposeTargetData : TargetDataRef -> unit
+  end
+namespace LLVM.Generated
+  module TargetMachine = begin
+    type TargetMachineRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> TargetMachineRef
+        member Ptr : nativeint
+      end
+    type TargetRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> TargetRef
+        member Ptr : nativeint
+      end
+    type CodeGenOptLevel =
+      |  CodeGenLevelNone  =  0
+      |  CodeGenLevelLess  =  1
+      |  CodeGenLevelDefault  =  2
+      |  CodeGenLevelAggressive  =  3
+    type RelocMode =
+      |  RelocDefault  =  0
+      |  RelocStatic  =  1
+      |  RelocPIC  =  2
+      |  RelocDynamicNoPic  =  3
+    type CodeModel =
+      |  CodeModelDefault  =  0
+      |  CodeModelJITDefault  =  1
+      |  CodeModelSmall  =  2
+      |  CodeModelKernel  =  3
+      |  CodeModelMedium  =  4
+      |  CodeModelLarge  =  5
+    type CodeGenFileType =
+      |  AssemblyFile  =  0
+      |  ObjectFile  =  1
+    val getFirstTargetNative : unit -> nativeint
+    val getFirstTarget : unit -> TargetRef
+    val getNextTargetNative : nativeint -> nativeint
+    val getNextTarget : TargetRef -> TargetRef
+    val getTargetFromNameNative : string -> nativeint
+    val getTargetFromName : string -> TargetRef
+    val getTargetFromTripleNative : string * nativeint * nativeint -> bool
+    val getTargetNameNative : nativeint -> nativeint
+    val getTargetName : TargetRef -> string
+    val getTargetDescriptionNative : nativeint -> nativeint
+    val getTargetDescription : TargetRef -> string
+    val targetHasJITNative : nativeint -> bool
+    val targetHasJIT : TargetRef -> bool
+    val targetHasTargetMachineNative : nativeint -> bool
+    val targetHasTargetMachine : TargetRef -> bool
+    val targetHasAsmBackendNative : nativeint -> bool
+    val targetHasAsmBackend : TargetRef -> bool
+    val createTargetMachineNative :
+      nativeint * string * string * string * int * int * int -> nativeint
+    val createTargetMachine :
+      TargetRef ->
+        string ->
+          string ->
+            string ->
+              CodeGenOptLevel -> RelocMode -> CodeModel -> TargetMachineRef
+    val disposeTargetMachineNative : nativeint -> unit
+    val disposeTargetMachine : TargetMachineRef -> unit
+    val getTargetMachineTargetNative : nativeint -> nativeint
+    val getTargetMachineTarget : TargetMachineRef -> TargetRef
+    val getTargetMachineTripleNative : nativeint -> nativeint
+    val getTargetMachineTriple : TargetMachineRef -> string
+    val getTargetMachineCPUNative : nativeint -> nativeint
+    val getTargetMachineCPU : TargetMachineRef -> string
+    val getTargetMachineFeatureStringNative : nativeint -> nativeint
+    val getTargetMachineFeatureString : TargetMachineRef -> string
+    val getTargetMachineDataNative : nativeint -> nativeint
+    val getTargetMachineData : TargetMachineRef -> Target.TargetDataRef
+    val setTargetMachineAsmVerbosityNative : nativeint * bool -> unit
+    val setTargetMachineAsmVerbosity : TargetMachineRef -> bool -> unit
+    val targetMachineEmitToFileNative :
+      nativeint * nativeint * string * int * nativeint -> bool
+    val targetMachineEmitToMemoryBufferNative :
+      nativeint * nativeint * int * nativeint * nativeint -> bool
+    val getDefaultTargetTripleNative : unit -> nativeint
+    val getDefaultTargetTriple : unit -> string
+    val addAnalysisPassesNative : nativeint * nativeint -> unit
+    val addAnalysisPasses : TargetMachineRef -> Core.PassManagerRef -> unit
   end
 namespace LLVM.Generated
   module ExecutionEngine = begin
@@ -1346,6 +1454,9 @@ namespace LLVM.Generated
     val getExecutionEngineTargetDataNative : nativeint -> nativeint
     val getExecutionEngineTargetData :
       ExecutionEngineRef -> Target.TargetDataRef
+    val getExecutionEngineTargetMachineNative : nativeint -> nativeint
+    val getExecutionEngineTargetMachine :
+      ExecutionEngineRef -> TargetMachine.TargetMachineRef
     val addGlobalMappingNative : nativeint * nativeint * nativeint -> unit
     val getPointerToGlobalNative : nativeint * nativeint -> nativeint
   end
@@ -1371,6 +1482,8 @@ namespace LLVM.Generated.Transforms
     val addCFGSimplificationPass : Core.PassManagerRef -> unit
     val addDeadStoreEliminationPassNative : nativeint -> unit
     val addDeadStoreEliminationPass : Core.PassManagerRef -> unit
+    val addScalarizerPassNative : nativeint -> unit
+    val addScalarizerPass : Core.PassManagerRef -> unit
     val addGVNPassNative : nativeint -> unit
     val addGVNPass : Core.PassManagerRef -> unit
     val addIndVarSimplifyPassNative : nativeint -> unit
@@ -1387,6 +1500,8 @@ namespace LLVM.Generated.Transforms
     val addLoopIdiomPass : Core.PassManagerRef -> unit
     val addLoopRotatePassNative : nativeint -> unit
     val addLoopRotatePass : Core.PassManagerRef -> unit
+    val addLoopRerollPassNative : nativeint -> unit
+    val addLoopRerollPass : Core.PassManagerRef -> unit
     val addLoopUnrollPassNative : nativeint -> unit
     val addLoopUnrollPass : Core.PassManagerRef -> unit
     val addLoopUnswitchPassNative : nativeint -> unit
@@ -1518,7 +1633,7 @@ namespace LLVM
     val getStructElementTypes :
       Generated.Core.TypeRef -> Generated.Core.TypeRef []
     val createMemoryBufferWithContentsOfFile :
-      string -> Generated.Core.MemoryBufferRef
+      string -> Generated.Support.MemoryBufferRef
     val mdNode : Generated.Core.ValueRef array -> Generated.Core.ValueRef
     val mdNodeInContext :
       Generated.Core.ContextRef ->
@@ -1550,7 +1665,7 @@ namespace LLVM
 namespace LLVM
   module BitReader = begin
     val parseBitcode :
-      Generated.Core.MemoryBufferRef -> Generated.Core.ModuleRef
+      Generated.Support.MemoryBufferRef -> Generated.Core.ModuleRef
   end
 
 namespace LLVM

@@ -4,6 +4,29 @@ namespace LLVM.Generated
     open LLVM.FFIUtil
     open System.Runtime.InteropServices
 
+    module Support =
+
+        type MemoryBufferRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMLoadLibraryPermanently",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool loadLibraryPermanentlyNative(
+            string Filename)
+        let loadLibraryPermanently _Filename =
+            loadLibraryPermanentlyNative (_Filename)
+
+// This file should not be edited. It is automatically generated from a C header file
+namespace LLVM.Generated
+
+    open LLVM.FFIUtil
+    open System.Runtime.InteropServices
+    open LLVM.Generated.Support
+
     module Core =
 
         type ContextRef (thePtr : nativeint) =
@@ -31,10 +54,6 @@ namespace LLVM.Generated
             interface ILLVMRef with member x.Ptr = thePtr
 
         type ModuleProviderRef (thePtr : nativeint) =
-            member x.Ptr = (x :> ILLVMRef).Ptr
-            interface ILLVMRef with member x.Ptr = thePtr
-
-        type MemoryBufferRef (thePtr : nativeint) =
             member x.Ptr = (x :> ILLVMRef).Ptr
             interface ILLVMRef with member x.Ptr = thePtr
 
@@ -119,6 +138,7 @@ namespace LLVM.Generated
             | PtrToInt = 39
             | IntToPtr = 40
             | BitCast = 41
+            | AddrSpaceCast = 60
             | ICmp = 42
             | FCmp = 43
             | PHI = 44
@@ -180,10 +200,17 @@ namespace LLVM.Generated
             | HiddenVisibility = 1
             | ProtectedVisibility = 2
 
+        type DLLStorageClass =
+            | DefaultStorageClass = 0
+            | DLLImportStorageClass = 1
+            | DLLExportStorageClass = 2
+
         type CallConv =
             | CCallConv = 0
             | FastCallConv = 8
             | ColdCallConv = 9
+            | WebKitJSCallConv = 12
+            | AnyRegCallConv = 13
             | X86StdcallCallConv = 64
             | X86FastcallCallConv = 65
 
@@ -284,6 +311,15 @@ namespace LLVM.Generated
         // LLVMInstallFatalErrorHandler is blacklisted by the binding generator
 
         // LLVMResetFatalErrorHandler is blacklisted by the binding generator
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMEnablePrettyStackTrace",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void enablePrettyStackTraceNative()
+        let enablePrettyStackTrace () =
+            enablePrettyStackTraceNative ()
 
         [<DllImport(
             llvmAssemblyName,
@@ -1180,6 +1216,16 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMPrintValueToString",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* printValueToStringNative(
+            void* (* LLVMValueRef *) Val)
+        let printValueToString _Val =
+            Marshal.PtrToStringAuto (printValueToStringNative ((_Val : ValueRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMReplaceAllUsesWith",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -2049,6 +2095,17 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMConstAddrSpaceCast",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMValueRef *) constAddrSpaceCastNative(
+            void* (* LLVMValueRef *) ConstantVal,
+            void* (* LLVMTypeRef *) ToType)
+        let constAddrSpaceCast _ConstantVal _ToType =
+            new ValueRef (constAddrSpaceCastNative ((_ConstantVal : ValueRef).Ptr, (_ToType : TypeRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMConstZExtOrBitCast",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -2294,13 +2351,55 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMGetDLLStorageClass",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern int (* LLVMDLLStorageClass *) getDLLStorageClassNative(
+            void* (* LLVMValueRef *) Global)
+        let getDLLStorageClass _Global =
+            enum<DLLStorageClass> (getDLLStorageClassNative ((_Global : ValueRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMSetDLLStorageClass",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void setDLLStorageClassNative(
+            void* (* LLVMValueRef *) Global,
+            int (* LLVMDLLStorageClass *) Class)
+        let setDLLStorageClass _Global _Class =
+            setDLLStorageClassNative ((_Global : ValueRef).Ptr, (int (_Class : DLLStorageClass)))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMHasUnnamedAddr",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool hasUnnamedAddrNative(
+            void* (* LLVMValueRef *) Global)
+        let hasUnnamedAddr _Global =
+            hasUnnamedAddrNative ((_Global : ValueRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMSetUnnamedAddr",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void setUnnamedAddrNative(
+            void* (* LLVMValueRef *) Global,
+            bool HasUnnamedAddr)
+        let setUnnamedAddr _Global _HasUnnamedAddr =
+            setUnnamedAddrNative ((_Global : ValueRef).Ptr, _HasUnnamedAddr)
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMGetAlignment",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint32 getAlignmentNative(
-            void* (* LLVMValueRef *) Global)
-        let getAlignment _Global =
-            getAlignmentNative ((_Global : ValueRef).Ptr)
+            void* (* LLVMValueRef *) V)
+        let getAlignment _V =
+            getAlignmentNative ((_V : ValueRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -2308,10 +2407,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern void setAlignmentNative(
-            void* (* LLVMValueRef *) Global,
+            void* (* LLVMValueRef *) V,
             uint32 Bytes)
-        let setAlignment _Global _Bytes =
-            setAlignmentNative ((_Global : ValueRef).Ptr, _Bytes)
+        let setAlignment _V _Bytes =
+            setAlignmentNative ((_V : ValueRef).Ptr, _Bytes)
 
         [<DllImport(
             llvmAssemblyName,
@@ -4314,6 +4413,19 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMBuildAddrSpaceCast",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMValueRef *) buildAddrSpaceCastNative(
+            void* (* LLVMBuilderRef *) arg0,
+            void* (* LLVMValueRef *) Val,
+            void* (* LLVMTypeRef *) DestTy,
+            string Name)
+        let buildAddrSpaceCast _arg0 _Val _DestTy _Name =
+            new ValueRef (buildAddrSpaceCastNative ((_arg0 : BuilderRef).Ptr, (_Val : ValueRef).Ptr, (_DestTy : TypeRef).Ptr, _Name))
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMBuildZExtOrBitCast",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -4588,6 +4700,19 @@ namespace LLVM.Generated
             string Name)
         let buildPtrDiff _arg0 _LHS _RHS _Name =
             new ValueRef (buildPtrDiffNative ((_arg0 : BuilderRef).Ptr, (_LHS : ValueRef).Ptr, (_RHS : ValueRef).Ptr, _Name))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMBuildFence",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMValueRef *) buildFenceNative(
+            void* (* LLVMBuilderRef *) B,
+            int (* LLVMAtomicOrdering *) ordering,
+            bool singleThread,
+            string Name)
+        let buildFence _B _ordering _singleThread _Name =
+            new ValueRef (buildFenceNative ((_B : BuilderRef).Ptr, (int (_ordering : AtomicOrdering)), _singleThread, _Name))
 
         [<DllImport(
             llvmAssemblyName,
@@ -4960,10 +5085,6 @@ namespace LLVM.Generated
             member x.Ptr = (x :> ILLVMRef).Ptr
             interface ILLVMRef with member x.Ptr = thePtr
 
-        type StructLayoutRef (thePtr : nativeint) =
-            member x.Ptr = (x :> ILLVMRef).Ptr
-            interface ILLVMRef with member x.Ptr = thePtr
-
         [<DllImport(
             llvmAssemblyName,
             EntryPoint="LLVMCreateTargetData",
@@ -4980,10 +5101,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern void addTargetDataNative(
-            void* (* LLVMTargetDataRef *) arg0,
-            void* (* LLVMPassManagerRef *) arg1)
-        let addTargetData _arg0 _arg1 =
-            addTargetDataNative ((_arg0 : TargetDataRef).Ptr, (_arg1 : PassManagerRef).Ptr)
+            void* (* LLVMTargetDataRef *) TD,
+            void* (* LLVMPassManagerRef *) PM)
+        let addTargetData _TD _PM =
+            addTargetDataNative ((_TD : TargetDataRef).Ptr, (_PM : PassManagerRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -4991,10 +5112,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern void addTargetLibraryInfoNative(
-            void* (* LLVMTargetLibraryInfoRef *) arg0,
-            void* (* LLVMPassManagerRef *) arg1)
-        let addTargetLibraryInfo _arg0 _arg1 =
-            addTargetLibraryInfoNative ((_arg0 : TargetLibraryInfoRef).Ptr, (_arg1 : PassManagerRef).Ptr)
+            void* (* LLVMTargetLibraryInfoRef *) TLI,
+            void* (* LLVMPassManagerRef *) PM)
+        let addTargetLibraryInfo _TLI _PM =
+            addTargetLibraryInfoNative ((_TLI : TargetLibraryInfoRef).Ptr, (_PM : PassManagerRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5002,9 +5123,9 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern void* copyStringRepOfTargetDataNative(
-            void* (* LLVMTargetDataRef *) arg0)
-        let copyStringRepOfTargetData _arg0 =
-            Marshal.PtrToStringAuto (copyStringRepOfTargetDataNative ((_arg0 : TargetDataRef).Ptr))
+            void* (* LLVMTargetDataRef *) TD)
+        let copyStringRepOfTargetData _TD =
+            Marshal.PtrToStringAuto (copyStringRepOfTargetDataNative ((_TD : TargetDataRef).Ptr))
 
         [<DllImport(
             llvmAssemblyName,
@@ -5012,9 +5133,9 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern int (* LLVMByteOrdering *) byteOrderNative(
-            void* (* LLVMTargetDataRef *) arg0)
-        let byteOrder _arg0 =
-            enum<ByteOrdering> (byteOrderNative ((_arg0 : TargetDataRef).Ptr))
+            void* (* LLVMTargetDataRef *) TD)
+        let byteOrder _TD =
+            enum<ByteOrdering> (byteOrderNative ((_TD : TargetDataRef).Ptr))
 
         [<DllImport(
             llvmAssemblyName,
@@ -5022,9 +5143,9 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint32 pointerSizeNative(
-            void* (* LLVMTargetDataRef *) arg0)
-        let pointerSize _arg0 =
-            pointerSizeNative ((_arg0 : TargetDataRef).Ptr)
+            void* (* LLVMTargetDataRef *) TD)
+        let pointerSize _TD =
+            pointerSizeNative ((_TD : TargetDataRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5032,10 +5153,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint32 pointerSizeForASNative(
-            void* (* LLVMTargetDataRef *) arg0,
+            void* (* LLVMTargetDataRef *) TD,
             uint32 AS)
-        let pointerSizeForAS _arg0 _AS =
-            pointerSizeForASNative ((_arg0 : TargetDataRef).Ptr, _AS)
+        let pointerSizeForAS _TD _AS =
+            pointerSizeForASNative ((_TD : TargetDataRef).Ptr, _AS)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5043,9 +5164,9 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern void* (* LLVMTypeRef *) intPtrTypeNative(
-            void* (* LLVMTargetDataRef *) arg0)
-        let intPtrType _arg0 =
-            new TypeRef (intPtrTypeNative ((_arg0 : TargetDataRef).Ptr))
+            void* (* LLVMTargetDataRef *) TD)
+        let intPtrType _TD =
+            new TypeRef (intPtrTypeNative ((_TD : TargetDataRef).Ptr))
 
         [<DllImport(
             llvmAssemblyName,
@@ -5053,10 +5174,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern void* (* LLVMTypeRef *) intPtrTypeForASNative(
-            void* (* LLVMTargetDataRef *) arg0,
+            void* (* LLVMTargetDataRef *) TD,
             uint32 AS)
-        let intPtrTypeForAS _arg0 _AS =
-            new TypeRef (intPtrTypeForASNative ((_arg0 : TargetDataRef).Ptr, _AS))
+        let intPtrTypeForAS _TD _AS =
+            new TypeRef (intPtrTypeForASNative ((_TD : TargetDataRef).Ptr, _AS))
 
         [<DllImport(
             llvmAssemblyName,
@@ -5064,10 +5185,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern void* (* LLVMTypeRef *) intPtrTypeInContextNative(
-            void* (* LLVMContextRef *) arg0,
-            void* (* LLVMTargetDataRef *) arg1)
-        let intPtrTypeInContext _arg0 _arg1 =
-            new TypeRef (intPtrTypeInContextNative ((_arg0 : ContextRef).Ptr, (_arg1 : TargetDataRef).Ptr))
+            void* (* LLVMContextRef *) C,
+            void* (* LLVMTargetDataRef *) TD)
+        let intPtrTypeInContext _C _TD =
+            new TypeRef (intPtrTypeInContextNative ((_C : ContextRef).Ptr, (_TD : TargetDataRef).Ptr))
 
         [<DllImport(
             llvmAssemblyName,
@@ -5075,11 +5196,11 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern void* (* LLVMTypeRef *) intPtrTypeForASInContextNative(
-            void* (* LLVMContextRef *) arg0,
-            void* (* LLVMTargetDataRef *) arg1,
+            void* (* LLVMContextRef *) C,
+            void* (* LLVMTargetDataRef *) TD,
             uint32 AS)
-        let intPtrTypeForASInContext _arg0 _arg1 _AS =
-            new TypeRef (intPtrTypeForASInContextNative ((_arg0 : ContextRef).Ptr, (_arg1 : TargetDataRef).Ptr, _AS))
+        let intPtrTypeForASInContext _C _TD _AS =
+            new TypeRef (intPtrTypeForASInContextNative ((_C : ContextRef).Ptr, (_TD : TargetDataRef).Ptr, _AS))
 
         [<DllImport(
             llvmAssemblyName,
@@ -5087,10 +5208,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint64 sizeOfTypeInBitsNative(
-            void* (* LLVMTargetDataRef *) arg0,
-            void* (* LLVMTypeRef *) arg1)
-        let sizeOfTypeInBits _arg0 _arg1 =
-            sizeOfTypeInBitsNative ((_arg0 : TargetDataRef).Ptr, (_arg1 : TypeRef).Ptr)
+            void* (* LLVMTargetDataRef *) TD,
+            void* (* LLVMTypeRef *) Ty)
+        let sizeOfTypeInBits _TD _Ty =
+            sizeOfTypeInBitsNative ((_TD : TargetDataRef).Ptr, (_Ty : TypeRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5098,10 +5219,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint64 storeSizeOfTypeNative(
-            void* (* LLVMTargetDataRef *) arg0,
-            void* (* LLVMTypeRef *) arg1)
-        let storeSizeOfType _arg0 _arg1 =
-            storeSizeOfTypeNative ((_arg0 : TargetDataRef).Ptr, (_arg1 : TypeRef).Ptr)
+            void* (* LLVMTargetDataRef *) TD,
+            void* (* LLVMTypeRef *) Ty)
+        let storeSizeOfType _TD _Ty =
+            storeSizeOfTypeNative ((_TD : TargetDataRef).Ptr, (_Ty : TypeRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5109,10 +5230,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint64 aBISizeOfTypeNative(
-            void* (* LLVMTargetDataRef *) arg0,
-            void* (* LLVMTypeRef *) arg1)
-        let aBISizeOfType _arg0 _arg1 =
-            aBISizeOfTypeNative ((_arg0 : TargetDataRef).Ptr, (_arg1 : TypeRef).Ptr)
+            void* (* LLVMTargetDataRef *) TD,
+            void* (* LLVMTypeRef *) Ty)
+        let aBISizeOfType _TD _Ty =
+            aBISizeOfTypeNative ((_TD : TargetDataRef).Ptr, (_Ty : TypeRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5120,10 +5241,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint32 aBIAlignmentOfTypeNative(
-            void* (* LLVMTargetDataRef *) arg0,
-            void* (* LLVMTypeRef *) arg1)
-        let aBIAlignmentOfType _arg0 _arg1 =
-            aBIAlignmentOfTypeNative ((_arg0 : TargetDataRef).Ptr, (_arg1 : TypeRef).Ptr)
+            void* (* LLVMTargetDataRef *) TD,
+            void* (* LLVMTypeRef *) Ty)
+        let aBIAlignmentOfType _TD _Ty =
+            aBIAlignmentOfTypeNative ((_TD : TargetDataRef).Ptr, (_Ty : TypeRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5131,10 +5252,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint32 callFrameAlignmentOfTypeNative(
-            void* (* LLVMTargetDataRef *) arg0,
-            void* (* LLVMTypeRef *) arg1)
-        let callFrameAlignmentOfType _arg0 _arg1 =
-            callFrameAlignmentOfTypeNative ((_arg0 : TargetDataRef).Ptr, (_arg1 : TypeRef).Ptr)
+            void* (* LLVMTargetDataRef *) TD,
+            void* (* LLVMTypeRef *) Ty)
+        let callFrameAlignmentOfType _TD _Ty =
+            callFrameAlignmentOfTypeNative ((_TD : TargetDataRef).Ptr, (_Ty : TypeRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5142,10 +5263,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint32 preferredAlignmentOfTypeNative(
-            void* (* LLVMTargetDataRef *) arg0,
-            void* (* LLVMTypeRef *) arg1)
-        let preferredAlignmentOfType _arg0 _arg1 =
-            preferredAlignmentOfTypeNative ((_arg0 : TargetDataRef).Ptr, (_arg1 : TypeRef).Ptr)
+            void* (* LLVMTargetDataRef *) TD,
+            void* (* LLVMTypeRef *) Ty)
+        let preferredAlignmentOfType _TD _Ty =
+            preferredAlignmentOfTypeNative ((_TD : TargetDataRef).Ptr, (_Ty : TypeRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5153,10 +5274,10 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint32 preferredAlignmentOfGlobalNative(
-            void* (* LLVMTargetDataRef *) arg0,
+            void* (* LLVMTargetDataRef *) TD,
             void* (* LLVMValueRef *) GlobalVar)
-        let preferredAlignmentOfGlobal _arg0 _GlobalVar =
-            preferredAlignmentOfGlobalNative ((_arg0 : TargetDataRef).Ptr, (_GlobalVar : ValueRef).Ptr)
+        let preferredAlignmentOfGlobal _TD _GlobalVar =
+            preferredAlignmentOfGlobalNative ((_TD : TargetDataRef).Ptr, (_GlobalVar : ValueRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5164,11 +5285,11 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint32 elementAtOffsetNative(
-            void* (* LLVMTargetDataRef *) arg0,
+            void* (* LLVMTargetDataRef *) TD,
             void* (* LLVMTypeRef *) StructTy,
             uint64 Offset)
-        let elementAtOffset _arg0 _StructTy _Offset =
-            elementAtOffsetNative ((_arg0 : TargetDataRef).Ptr, (_StructTy : TypeRef).Ptr, _Offset)
+        let elementAtOffset _TD _StructTy _Offset =
+            elementAtOffsetNative ((_TD : TargetDataRef).Ptr, (_StructTy : TypeRef).Ptr, _Offset)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5176,11 +5297,11 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern uint64 offsetOfElementNative(
-            void* (* LLVMTargetDataRef *) arg0,
+            void* (* LLVMTargetDataRef *) TD,
             void* (* LLVMTypeRef *) StructTy,
             uint32 Element)
-        let offsetOfElement _arg0 _StructTy _Element =
-            offsetOfElementNative ((_arg0 : TargetDataRef).Ptr, (_StructTy : TypeRef).Ptr, _Element)
+        let offsetOfElement _TD _StructTy _Element =
+            offsetOfElementNative ((_TD : TargetDataRef).Ptr, (_StructTy : TypeRef).Ptr, _Element)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5188,9 +5309,9 @@ namespace LLVM.Generated
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
         extern void disposeTargetDataNative(
-            void* (* LLVMTargetDataRef *) arg0)
-        let disposeTargetData _arg0 =
-            disposeTargetDataNative ((_arg0 : TargetDataRef).Ptr)
+            void* (* LLVMTargetDataRef *) TD)
+        let disposeTargetData _TD =
+            disposeTargetDataNative ((_TD : TargetDataRef).Ptr)
 
 // This file should not be edited. It is automatically generated from a C header file
 namespace LLVM.Generated
@@ -5199,6 +5320,272 @@ namespace LLVM.Generated
     open System.Runtime.InteropServices
     open LLVM.Generated.Core
     open LLVM.Generated.Target
+
+    module TargetMachine =
+
+        type TargetMachineRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
+        type TargetRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
+        type CodeGenOptLevel =
+            | CodeGenLevelNone = 0
+            | CodeGenLevelLess = 1
+            | CodeGenLevelDefault = 2
+            | CodeGenLevelAggressive = 3
+
+        type RelocMode =
+            | RelocDefault = 0
+            | RelocStatic = 1
+            | RelocPIC = 2
+            | RelocDynamicNoPic = 3
+
+        type CodeModel =
+            | CodeModelDefault = 0
+            | CodeModelJITDefault = 1
+            | CodeModelSmall = 2
+            | CodeModelKernel = 3
+            | CodeModelMedium = 4
+            | CodeModelLarge = 5
+
+        type CodeGenFileType =
+            | AssemblyFile = 0
+            | ObjectFile = 1
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetFirstTarget",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMTargetRef *) getFirstTargetNative()
+        let getFirstTarget () =
+            new TargetRef (getFirstTargetNative ())
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetNextTarget",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMTargetRef *) getNextTargetNative(
+            void* (* LLVMTargetRef *) T)
+        let getNextTarget _T =
+            new TargetRef (getNextTargetNative ((_T : TargetRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetTargetFromName",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMTargetRef *) getTargetFromNameNative(
+            string Name)
+        let getTargetFromName _Name =
+            new TargetRef (getTargetFromNameNative (_Name))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetTargetFromTriple",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool getTargetFromTripleNative(
+            string Triple,
+            void* (* LLVMTargetRef* *) T,
+            void* ErrorMessage)
+        // I don't know how to generate an "F# friendly" version of LLVMGetTargetFromTriple
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetTargetName",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getTargetNameNative(
+            void* (* LLVMTargetRef *) T)
+        let getTargetName _T =
+            Marshal.PtrToStringAuto (getTargetNameNative ((_T : TargetRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetTargetDescription",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getTargetDescriptionNative(
+            void* (* LLVMTargetRef *) T)
+        let getTargetDescription _T =
+            Marshal.PtrToStringAuto (getTargetDescriptionNative ((_T : TargetRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMTargetHasJIT",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool targetHasJITNative(
+            void* (* LLVMTargetRef *) T)
+        let targetHasJIT _T =
+            targetHasJITNative ((_T : TargetRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMTargetHasTargetMachine",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool targetHasTargetMachineNative(
+            void* (* LLVMTargetRef *) T)
+        let targetHasTargetMachine _T =
+            targetHasTargetMachineNative ((_T : TargetRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMTargetHasAsmBackend",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool targetHasAsmBackendNative(
+            void* (* LLVMTargetRef *) T)
+        let targetHasAsmBackend _T =
+            targetHasAsmBackendNative ((_T : TargetRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMCreateTargetMachine",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMTargetMachineRef *) createTargetMachineNative(
+            void* (* LLVMTargetRef *) T,
+            string Triple,
+            string CPU,
+            string Features,
+            int (* LLVMCodeGenOptLevel *) Level,
+            int (* LLVMRelocMode *) Reloc,
+            int (* LLVMCodeModel *) CodeModel)
+        let createTargetMachine _T _Triple _CPU _Features _Level _Reloc _CodeModel =
+            new TargetMachineRef (createTargetMachineNative ((_T : TargetRef).Ptr, _Triple, _CPU, _Features, (int (_Level : CodeGenOptLevel)), (int (_Reloc : RelocMode)), (int (_CodeModel : CodeModel))))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMDisposeTargetMachine",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void disposeTargetMachineNative(
+            void* (* LLVMTargetMachineRef *) T)
+        let disposeTargetMachine _T =
+            disposeTargetMachineNative ((_T : TargetMachineRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetTargetMachineTarget",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMTargetRef *) getTargetMachineTargetNative(
+            void* (* LLVMTargetMachineRef *) T)
+        let getTargetMachineTarget _T =
+            new TargetRef (getTargetMachineTargetNative ((_T : TargetMachineRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetTargetMachineTriple",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getTargetMachineTripleNative(
+            void* (* LLVMTargetMachineRef *) T)
+        let getTargetMachineTriple _T =
+            Marshal.PtrToStringAuto (getTargetMachineTripleNative ((_T : TargetMachineRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetTargetMachineCPU",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getTargetMachineCPUNative(
+            void* (* LLVMTargetMachineRef *) T)
+        let getTargetMachineCPU _T =
+            Marshal.PtrToStringAuto (getTargetMachineCPUNative ((_T : TargetMachineRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetTargetMachineFeatureString",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getTargetMachineFeatureStringNative(
+            void* (* LLVMTargetMachineRef *) T)
+        let getTargetMachineFeatureString _T =
+            Marshal.PtrToStringAuto (getTargetMachineFeatureStringNative ((_T : TargetMachineRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetTargetMachineData",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMTargetDataRef *) getTargetMachineDataNative(
+            void* (* LLVMTargetMachineRef *) T)
+        let getTargetMachineData _T =
+            new TargetDataRef (getTargetMachineDataNative ((_T : TargetMachineRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMSetTargetMachineAsmVerbosity",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void setTargetMachineAsmVerbosityNative(
+            void* (* LLVMTargetMachineRef *) T,
+            bool VerboseAsm)
+        let setTargetMachineAsmVerbosity _T _VerboseAsm =
+            setTargetMachineAsmVerbosityNative ((_T : TargetMachineRef).Ptr, _VerboseAsm)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMTargetMachineEmitToFile",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool targetMachineEmitToFileNative(
+            void* (* LLVMTargetMachineRef *) T,
+            void* (* LLVMModuleRef *) M,
+            string Filename,
+            int (* LLVMCodeGenFileType *) codegen,
+            void* ErrorMessage)
+        // I don't know how to generate an "F# friendly" version of LLVMTargetMachineEmitToFile
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMTargetMachineEmitToMemoryBuffer",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool targetMachineEmitToMemoryBufferNative(
+            void* (* LLVMTargetMachineRef *) T,
+            void* (* LLVMModuleRef *) M,
+            int (* LLVMCodeGenFileType *) codegen,
+            void* ErrorMessage,
+            void* (* LLVMMemoryBufferRef* *) OutMemBuf)
+        // I don't know how to generate an "F# friendly" version of LLVMTargetMachineEmitToMemoryBuffer
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetDefaultTargetTriple",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getDefaultTargetTripleNative()
+        let getDefaultTargetTriple () =
+            Marshal.PtrToStringAuto (getDefaultTargetTripleNative ())
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMAddAnalysisPasses",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void addAnalysisPassesNative(
+            void* (* LLVMTargetMachineRef *) T,
+            void* (* LLVMPassManagerRef *) PM)
+        let addAnalysisPasses _T _PM =
+            addAnalysisPassesNative ((_T : TargetMachineRef).Ptr, (_PM : PassManagerRef).Ptr)
+
+// This file should not be edited. It is automatically generated from a C header file
+namespace LLVM.Generated
+
+    open LLVM.FFIUtil
+    open System.Runtime.InteropServices
+    open LLVM.Generated.Core
+    open LLVM.Generated.Target
+    open LLVM.Generated.TargetMachine
 
     module ExecutionEngine =
 
@@ -5560,6 +5947,16 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMGetExecutionEngineTargetMachine",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMTargetMachineRef *) getExecutionEngineTargetMachineNative(
+            void* (* LLVMExecutionEngineRef *) EE)
+        let getExecutionEngineTargetMachine _EE =
+            new TargetMachineRef (getExecutionEngineTargetMachineNative ((_EE : ExecutionEngineRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMAddGlobalMapping",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -5680,6 +6077,16 @@ namespace LLVM.Generated.Transforms
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMAddScalarizerPass",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void addScalarizerPassNative(
+            void* (* LLVMPassManagerRef *) PM)
+        let addScalarizerPass _PM =
+            addScalarizerPassNative ((_PM : PassManagerRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMAddGVNPass",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -5757,6 +6164,16 @@ namespace LLVM.Generated.Transforms
             void* (* LLVMPassManagerRef *) PM)
         let addLoopRotatePass _PM =
             addLoopRotatePassNative ((_PM : PassManagerRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMAddLoopRerollPass",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void addLoopRerollPassNative(
+            void* (* LLVMPassManagerRef *) PM)
+        let addLoopRerollPass _PM =
+            addLoopRerollPassNative ((_PM : PassManagerRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
