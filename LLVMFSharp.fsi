@@ -27,6 +27,96 @@ namespace LLVM.Generated
     val loadLibraryPermanently : string -> bool
   end
 namespace LLVM.Generated
+  module Object = begin
+    type ObjectFileRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> ObjectFileRef
+        member Ptr : nativeint
+      end
+    type SectionIteratorRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> SectionIteratorRef
+        member Ptr : nativeint
+      end
+    type SymbolIteratorRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> SymbolIteratorRef
+        member Ptr : nativeint
+      end
+    type RelocationIteratorRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> RelocationIteratorRef
+        member Ptr : nativeint
+      end
+    val createObjectFileNative : nativeint -> nativeint
+    val createObjectFile : Support.MemoryBufferRef -> ObjectFileRef
+    val disposeObjectFileNative : nativeint -> unit
+    val disposeObjectFile : ObjectFileRef -> unit
+    val getSectionsNative : nativeint -> nativeint
+    val getSections : ObjectFileRef -> SectionIteratorRef
+    val disposeSectionIteratorNative : nativeint -> unit
+    val disposeSectionIterator : SectionIteratorRef -> unit
+    val isSectionIteratorAtEndNative : nativeint * nativeint -> bool
+    val isSectionIteratorAtEnd : ObjectFileRef -> SectionIteratorRef -> bool
+    val moveToNextSectionNative : nativeint -> unit
+    val moveToNextSection : SectionIteratorRef -> unit
+    val moveToContainingSectionNative : nativeint * nativeint -> unit
+    val moveToContainingSection :
+      SectionIteratorRef -> SymbolIteratorRef -> unit
+    val getSymbolsNative : nativeint -> nativeint
+    val getSymbols : ObjectFileRef -> SymbolIteratorRef
+    val disposeSymbolIteratorNative : nativeint -> unit
+    val disposeSymbolIterator : SymbolIteratorRef -> unit
+    val isSymbolIteratorAtEndNative : nativeint * nativeint -> bool
+    val isSymbolIteratorAtEnd : ObjectFileRef -> SymbolIteratorRef -> bool
+    val moveToNextSymbolNative : nativeint -> unit
+    val moveToNextSymbol : SymbolIteratorRef -> unit
+    val getSectionNameNative : nativeint -> nativeint
+    val getSectionName : SectionIteratorRef -> string
+    val getSectionSizeNative : nativeint -> uint64
+    val getSectionSize : SectionIteratorRef -> uint64
+    val getSectionContentsNative : nativeint -> nativeint
+    val getSectionContents : SectionIteratorRef -> string
+    val getSectionAddressNative : nativeint -> uint64
+    val getSectionAddress : SectionIteratorRef -> uint64
+    val getSectionContainsSymbolNative : nativeint * nativeint -> bool
+    val getSectionContainsSymbol :
+      SectionIteratorRef -> SymbolIteratorRef -> bool
+    val getRelocationsNative : nativeint -> nativeint
+    val getRelocations : SectionIteratorRef -> RelocationIteratorRef
+    val disposeRelocationIteratorNative : nativeint -> unit
+    val disposeRelocationIterator : RelocationIteratorRef -> unit
+    val isRelocationIteratorAtEndNative : nativeint * nativeint -> bool
+    val isRelocationIteratorAtEnd :
+      SectionIteratorRef -> RelocationIteratorRef -> bool
+    val moveToNextRelocationNative : nativeint -> unit
+    val moveToNextRelocation : RelocationIteratorRef -> unit
+    val getSymbolNameNative : nativeint -> nativeint
+    val getSymbolName : SymbolIteratorRef -> string
+    val getSymbolAddressNative : nativeint -> uint64
+    val getSymbolAddress : SymbolIteratorRef -> uint64
+    val getSymbolFileOffsetNative : nativeint -> uint64
+    val getSymbolFileOffset : SymbolIteratorRef -> uint64
+    val getSymbolSizeNative : nativeint -> uint64
+    val getSymbolSize : SymbolIteratorRef -> uint64
+    val getRelocationAddressNative : nativeint -> uint64
+    val getRelocationAddress : RelocationIteratorRef -> uint64
+    val getRelocationOffsetNative : nativeint -> uint64
+    val getRelocationOffset : RelocationIteratorRef -> uint64
+    val getRelocationSymbolNative : nativeint -> nativeint
+    val getRelocationSymbol : RelocationIteratorRef -> SymbolIteratorRef
+    val getRelocationTypeNative : nativeint -> uint64
+    val getRelocationType : RelocationIteratorRef -> uint64
+    val getRelocationTypeNameNative : nativeint -> nativeint
+    val getRelocationTypeName : RelocationIteratorRef -> string
+    val getRelocationValueStringNative : nativeint -> nativeint
+    val getRelocationValueString : RelocationIteratorRef -> string
+  end
+namespace LLVM.Generated
   module Core = begin
     type ContextRef =
       class
@@ -1207,6 +1297,33 @@ namespace LLVM.Generated
     val stopMultithreaded : unit -> unit
     val isMultithreadedNative : unit -> bool
     val isMultithreaded : unit -> bool
+  end
+namespace LLVM.Generated
+  module Initialization = begin
+    val initializeCoreNative : nativeint -> unit
+    val initializeCore : Core.PassRegistryRef -> unit
+    val initializeTransformUtilsNative : nativeint -> unit
+    val initializeTransformUtils : Core.PassRegistryRef -> unit
+    val initializeScalarOptsNative : nativeint -> unit
+    val initializeScalarOpts : Core.PassRegistryRef -> unit
+    val initializeObjCARCOptsNative : nativeint -> unit
+    val initializeObjCARCOpts : Core.PassRegistryRef -> unit
+    val initializeVectorizationNative : nativeint -> unit
+    val initializeVectorization : Core.PassRegistryRef -> unit
+    val initializeInstCombineNative : nativeint -> unit
+    val initializeInstCombine : Core.PassRegistryRef -> unit
+    val initializeIPONative : nativeint -> unit
+    val initializeIPO : Core.PassRegistryRef -> unit
+    val initializeInstrumentationNative : nativeint -> unit
+    val initializeInstrumentation : Core.PassRegistryRef -> unit
+    val initializeAnalysisNative : nativeint -> unit
+    val initializeAnalysis : Core.PassRegistryRef -> unit
+    val initializeIPANative : nativeint -> unit
+    val initializeIPA : Core.PassRegistryRef -> unit
+    val initializeCodeGenNative : nativeint -> unit
+    val initializeCodeGen : Core.PassRegistryRef -> unit
+    val initializeTargetNative : nativeint -> unit
+    val initializeTarget : Core.PassRegistryRef -> unit
   end
 namespace LLVM.Generated
   module BitReader = begin

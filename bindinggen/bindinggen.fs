@@ -328,7 +328,9 @@ let main (args : string array) =
         
         let modulesToProcess = [
             ("Support",             [])
+            ("Object",              ["Support"])
             ("Core",                ["Support"])
+            ("Initialization",      ["Core"])
             ("BitReader",           ["Core"])
             ("BitWriter",           ["Core"])
             ("Target",              ["Core"])

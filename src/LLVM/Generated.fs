@@ -27,6 +27,336 @@ namespace LLVM.Generated
     open System.Runtime.InteropServices
     open LLVM.Generated.Support
 
+    module Object =
+
+        type ObjectFileRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
+        type SectionIteratorRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
+        type SymbolIteratorRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
+        type RelocationIteratorRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMCreateObjectFile",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMObjectFileRef *) createObjectFileNative(
+            void* (* LLVMMemoryBufferRef *) MemBuf)
+        let createObjectFile _MemBuf =
+            new ObjectFileRef (createObjectFileNative ((_MemBuf : MemoryBufferRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMDisposeObjectFile",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void disposeObjectFileNative(
+            void* (* LLVMObjectFileRef *) ObjectFile)
+        let disposeObjectFile _ObjectFile =
+            disposeObjectFileNative ((_ObjectFile : ObjectFileRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSections",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMSectionIteratorRef *) getSectionsNative(
+            void* (* LLVMObjectFileRef *) ObjectFile)
+        let getSections _ObjectFile =
+            new SectionIteratorRef (getSectionsNative ((_ObjectFile : ObjectFileRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMDisposeSectionIterator",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void disposeSectionIteratorNative(
+            void* (* LLVMSectionIteratorRef *) SI)
+        let disposeSectionIterator _SI =
+            disposeSectionIteratorNative ((_SI : SectionIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMIsSectionIteratorAtEnd",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool isSectionIteratorAtEndNative(
+            void* (* LLVMObjectFileRef *) ObjectFile,
+            void* (* LLVMSectionIteratorRef *) SI)
+        let isSectionIteratorAtEnd _ObjectFile _SI =
+            isSectionIteratorAtEndNative ((_ObjectFile : ObjectFileRef).Ptr, (_SI : SectionIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMMoveToNextSection",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void moveToNextSectionNative(
+            void* (* LLVMSectionIteratorRef *) SI)
+        let moveToNextSection _SI =
+            moveToNextSectionNative ((_SI : SectionIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMMoveToContainingSection",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void moveToContainingSectionNative(
+            void* (* LLVMSectionIteratorRef *) Sect,
+            void* (* LLVMSymbolIteratorRef *) Sym)
+        let moveToContainingSection _Sect _Sym =
+            moveToContainingSectionNative ((_Sect : SectionIteratorRef).Ptr, (_Sym : SymbolIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSymbols",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMSymbolIteratorRef *) getSymbolsNative(
+            void* (* LLVMObjectFileRef *) ObjectFile)
+        let getSymbols _ObjectFile =
+            new SymbolIteratorRef (getSymbolsNative ((_ObjectFile : ObjectFileRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMDisposeSymbolIterator",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void disposeSymbolIteratorNative(
+            void* (* LLVMSymbolIteratorRef *) SI)
+        let disposeSymbolIterator _SI =
+            disposeSymbolIteratorNative ((_SI : SymbolIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMIsSymbolIteratorAtEnd",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool isSymbolIteratorAtEndNative(
+            void* (* LLVMObjectFileRef *) ObjectFile,
+            void* (* LLVMSymbolIteratorRef *) SI)
+        let isSymbolIteratorAtEnd _ObjectFile _SI =
+            isSymbolIteratorAtEndNative ((_ObjectFile : ObjectFileRef).Ptr, (_SI : SymbolIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMMoveToNextSymbol",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void moveToNextSymbolNative(
+            void* (* LLVMSymbolIteratorRef *) SI)
+        let moveToNextSymbol _SI =
+            moveToNextSymbolNative ((_SI : SymbolIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSectionName",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getSectionNameNative(
+            void* (* LLVMSectionIteratorRef *) SI)
+        let getSectionName _SI =
+            Marshal.PtrToStringAuto (getSectionNameNative ((_SI : SectionIteratorRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSectionSize",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern uint64 getSectionSizeNative(
+            void* (* LLVMSectionIteratorRef *) SI)
+        let getSectionSize _SI =
+            getSectionSizeNative ((_SI : SectionIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSectionContents",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getSectionContentsNative(
+            void* (* LLVMSectionIteratorRef *) SI)
+        let getSectionContents _SI =
+            Marshal.PtrToStringAuto (getSectionContentsNative ((_SI : SectionIteratorRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSectionAddress",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern uint64 getSectionAddressNative(
+            void* (* LLVMSectionIteratorRef *) SI)
+        let getSectionAddress _SI =
+            getSectionAddressNative ((_SI : SectionIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSectionContainsSymbol",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool getSectionContainsSymbolNative(
+            void* (* LLVMSectionIteratorRef *) SI,
+            void* (* LLVMSymbolIteratorRef *) Sym)
+        let getSectionContainsSymbol _SI _Sym =
+            getSectionContainsSymbolNative ((_SI : SectionIteratorRef).Ptr, (_Sym : SymbolIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetRelocations",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMRelocationIteratorRef *) getRelocationsNative(
+            void* (* LLVMSectionIteratorRef *) Section)
+        let getRelocations _Section =
+            new RelocationIteratorRef (getRelocationsNative ((_Section : SectionIteratorRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMDisposeRelocationIterator",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void disposeRelocationIteratorNative(
+            void* (* LLVMRelocationIteratorRef *) RI)
+        let disposeRelocationIterator _RI =
+            disposeRelocationIteratorNative ((_RI : RelocationIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMIsRelocationIteratorAtEnd",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool isRelocationIteratorAtEndNative(
+            void* (* LLVMSectionIteratorRef *) Section,
+            void* (* LLVMRelocationIteratorRef *) RI)
+        let isRelocationIteratorAtEnd _Section _RI =
+            isRelocationIteratorAtEndNative ((_Section : SectionIteratorRef).Ptr, (_RI : RelocationIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMMoveToNextRelocation",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void moveToNextRelocationNative(
+            void* (* LLVMRelocationIteratorRef *) RI)
+        let moveToNextRelocation _RI =
+            moveToNextRelocationNative ((_RI : RelocationIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSymbolName",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getSymbolNameNative(
+            void* (* LLVMSymbolIteratorRef *) SI)
+        let getSymbolName _SI =
+            Marshal.PtrToStringAuto (getSymbolNameNative ((_SI : SymbolIteratorRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSymbolAddress",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern uint64 getSymbolAddressNative(
+            void* (* LLVMSymbolIteratorRef *) SI)
+        let getSymbolAddress _SI =
+            getSymbolAddressNative ((_SI : SymbolIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSymbolFileOffset",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern uint64 getSymbolFileOffsetNative(
+            void* (* LLVMSymbolIteratorRef *) SI)
+        let getSymbolFileOffset _SI =
+            getSymbolFileOffsetNative ((_SI : SymbolIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSymbolSize",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern uint64 getSymbolSizeNative(
+            void* (* LLVMSymbolIteratorRef *) SI)
+        let getSymbolSize _SI =
+            getSymbolSizeNative ((_SI : SymbolIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetRelocationAddress",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern uint64 getRelocationAddressNative(
+            void* (* LLVMRelocationIteratorRef *) RI)
+        let getRelocationAddress _RI =
+            getRelocationAddressNative ((_RI : RelocationIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetRelocationOffset",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern uint64 getRelocationOffsetNative(
+            void* (* LLVMRelocationIteratorRef *) RI)
+        let getRelocationOffset _RI =
+            getRelocationOffsetNative ((_RI : RelocationIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetRelocationSymbol",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMSymbolIteratorRef *) getRelocationSymbolNative(
+            void* (* LLVMRelocationIteratorRef *) RI)
+        let getRelocationSymbol _RI =
+            new SymbolIteratorRef (getRelocationSymbolNative ((_RI : RelocationIteratorRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetRelocationType",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern uint64 getRelocationTypeNative(
+            void* (* LLVMRelocationIteratorRef *) RI)
+        let getRelocationType _RI =
+            getRelocationTypeNative ((_RI : RelocationIteratorRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetRelocationTypeName",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getRelocationTypeNameNative(
+            void* (* LLVMRelocationIteratorRef *) RI)
+        let getRelocationTypeName _RI =
+            Marshal.PtrToStringAuto (getRelocationTypeNameNative ((_RI : RelocationIteratorRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetRelocationValueString",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getRelocationValueStringNative(
+            void* (* LLVMRelocationIteratorRef *) RI)
+        let getRelocationValueString _RI =
+            Marshal.PtrToStringAuto (getRelocationValueStringNative ((_RI : RelocationIteratorRef).Ptr))
+
+// This file should not be edited. It is automatically generated from a C header file
+namespace LLVM.Generated
+
+    open LLVM.FFIUtil
+    open System.Runtime.InteropServices
+    open LLVM.Generated.Support
+
     module Core =
 
         type ContextRef (thePtr : nativeint) =
@@ -4941,6 +5271,135 @@ namespace LLVM.Generated
         extern bool isMultithreadedNative()
         let isMultithreaded () =
             isMultithreadedNative ()
+
+// This file should not be edited. It is automatically generated from a C header file
+namespace LLVM.Generated
+
+    open LLVM.FFIUtil
+    open System.Runtime.InteropServices
+    open LLVM.Generated.Core
+
+    module Initialization =
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeCore",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeCoreNative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeCore _R =
+            initializeCoreNative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeTransformUtils",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeTransformUtilsNative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeTransformUtils _R =
+            initializeTransformUtilsNative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeScalarOpts",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeScalarOptsNative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeScalarOpts _R =
+            initializeScalarOptsNative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeObjCARCOpts",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeObjCARCOptsNative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeObjCARCOpts _R =
+            initializeObjCARCOptsNative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeVectorization",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeVectorizationNative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeVectorization _R =
+            initializeVectorizationNative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeInstCombine",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeInstCombineNative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeInstCombine _R =
+            initializeInstCombineNative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeIPO",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeIPONative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeIPO _R =
+            initializeIPONative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeInstrumentation",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeInstrumentationNative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeInstrumentation _R =
+            initializeInstrumentationNative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeAnalysis",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeAnalysisNative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeAnalysis _R =
+            initializeAnalysisNative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeIPA",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeIPANative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeIPA _R =
+            initializeIPANative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeCodeGen",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeCodeGenNative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeCodeGen _R =
+            initializeCodeGenNative ((_R : PassRegistryRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInitializeTarget",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void initializeTargetNative(
+            void* (* LLVMPassRegistryRef *) R)
+        let initializeTarget _R =
+            initializeTargetNative ((_R : PassRegistryRef).Ptr)
 
 // This file should not be edited. It is automatically generated from a C header file
 namespace LLVM.Generated
