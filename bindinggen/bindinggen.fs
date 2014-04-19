@@ -78,6 +78,7 @@ let toFSharpSource
             "LLVMDisposeMCJITMemoryManager"
             "LLVMInstallFatalErrorHandler"
             "LLVMResetFatalErrorHandler"
+            "LLVMContextSetDiagnosticHandler"
         ]
 
     let nsLen = moduleName.LastIndexOf '.'

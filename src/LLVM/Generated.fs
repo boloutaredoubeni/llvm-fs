@@ -399,6 +399,10 @@ namespace LLVM.Generated
             member x.Ptr = (x :> ILLVMRef).Ptr
             interface ILLVMRef with member x.Ptr = thePtr
 
+        type DiagnosticInfoRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
         type Attribute =
             | ZExtAttribute = 1
             | SExtAttribute = 2
@@ -607,6 +611,12 @@ namespace LLVM.Generated
             | AtomicRMWBinOpUMax = 9
             | AtomicRMWBinOpUMin = 10
 
+        type DiagnosticSeverity =
+            | DSError = 0
+            | DSWarning = 1
+            | DSRemark = 2
+            | DSNote = 3
+
         [<DllImport(
             llvmAssemblyName,
             EntryPoint="LLVMInitializeCore",
@@ -669,6 +679,8 @@ namespace LLVM.Generated
         let getGlobalContext () =
             new ContextRef (getGlobalContextNative ())
 
+        // LLVMContextSetDiagnosticHandler is blacklisted by the binding generator
+
         [<DllImport(
             llvmAssemblyName,
             EntryPoint="LLVMContextDispose",
@@ -678,6 +690,26 @@ namespace LLVM.Generated
             void* (* LLVMContextRef *) C)
         let contextDispose _C =
             contextDisposeNative ((_C : ContextRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetDiagInfoDescription",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getDiagInfoDescriptionNative(
+            void* (* LLVMDiagnosticInfoRef *) DI)
+        let getDiagInfoDescription _DI =
+            Marshal.PtrToStringAuto (getDiagInfoDescriptionNative ((_DI : DiagnosticInfoRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetDiagInfoSeverity",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern int (* LLVMDiagnosticSeverity *) getDiagInfoSeverityNative(
+            void* (* LLVMDiagnosticInfoRef *) DI)
+        let getDiagInfoSeverity _DI =
+            enum<DiagnosticSeverity> (getDiagInfoSeverityNative ((_DI : DiagnosticInfoRef).Ptr))
 
         [<DllImport(
             llvmAssemblyName,

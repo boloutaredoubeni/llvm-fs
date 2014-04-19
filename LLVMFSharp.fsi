@@ -178,6 +178,12 @@ namespace LLVM.Generated
         new : thePtr:nativeint -> UseRef
         member Ptr : nativeint
       end
+    type DiagnosticInfoRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> DiagnosticInfoRef
+        member Ptr : nativeint
+      end
     type Attribute =
       |  ZExtAttribute  =  1
       |  SExtAttribute  =  2
@@ -373,6 +379,11 @@ namespace LLVM.Generated
       |  AtomicRMWBinOpMin  =  8
       |  AtomicRMWBinOpUMax  =  9
       |  AtomicRMWBinOpUMin  =  10
+    type DiagnosticSeverity =
+      |  DSError  =  0
+      |  DSWarning  =  1
+      |  DSRemark  =  2
+      |  DSNote  =  3
     val initializeCoreNative : nativeint -> unit
     val initializeCore : PassRegistryRef -> unit
     val shutdownNative : unit -> unit
@@ -387,6 +398,10 @@ namespace LLVM.Generated
     val getGlobalContext : unit -> ContextRef
     val contextDisposeNative : nativeint -> unit
     val contextDispose : ContextRef -> unit
+    val getDiagInfoDescriptionNative : nativeint -> nativeint
+    val getDiagInfoDescription : DiagnosticInfoRef -> string
+    val getDiagInfoSeverityNative : nativeint -> int
+    val getDiagInfoSeverity : DiagnosticInfoRef -> DiagnosticSeverity
     val getMDKindIDInContextNative : nativeint * string * uint32 -> uint32
     val getMDKindIDInContext : ContextRef -> string -> uint32 -> uint32
     val getMDKindIDNative : string * uint32 -> uint32
