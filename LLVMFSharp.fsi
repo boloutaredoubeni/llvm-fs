@@ -99,8 +99,6 @@ namespace LLVM.Generated
     val getSymbolName : SymbolIteratorRef -> string
     val getSymbolAddressNative : nativeint -> uint64
     val getSymbolAddress : SymbolIteratorRef -> uint64
-    val getSymbolFileOffsetNative : nativeint -> uint64
-    val getSymbolFileOffset : SymbolIteratorRef -> uint64
     val getSymbolSizeNative : nativeint -> uint64
     val getSymbolSize : SymbolIteratorRef -> uint64
     val getRelocationAddressNative : nativeint -> uint64
@@ -160,6 +158,12 @@ namespace LLVM.Generated
         new : thePtr:nativeint -> ModuleProviderRef
         member Ptr : nativeint
       end
+    type PassRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> PassRef
+        member Ptr : nativeint
+      end
     type PassManagerRef =
       class
         interface FFIUtil.ILLVMRef
@@ -170,6 +174,12 @@ namespace LLVM.Generated
       class
         interface FFIUtil.ILLVMRef
         new : thePtr:nativeint -> PassRegistryRef
+        member Ptr : nativeint
+      end
+    type PassRunListenerRef =
+      class
+        interface FFIUtil.ILLVMRef
+        new : thePtr:nativeint -> PassRunListenerRef
         member Ptr : nativeint
       end
     type UseRef =
@@ -406,6 +416,8 @@ namespace LLVM.Generated
     val getMDKindIDInContext : ContextRef -> string -> uint32 -> uint32
     val getMDKindIDNative : string * uint32 -> uint32
     val getMDKindID : string -> uint32 -> uint32
+    val removePassRunListenerNative : nativeint * nativeint -> unit
+    val removePassRunListener : ContextRef -> PassRunListenerRef -> unit
     val moduleCreateWithNameNative : string -> nativeint
     val moduleCreateWithName : string -> ModuleRef
     val moduleCreateWithNameInContextNative : string * nativeint -> nativeint
@@ -1288,6 +1300,8 @@ namespace LLVM.Generated
     val getBufferSize : Support.MemoryBufferRef -> nativeint
     val disposeMemoryBufferNative : nativeint -> unit
     val disposeMemoryBuffer : Support.MemoryBufferRef -> unit
+    val getPassNameNative : nativeint -> nativeint
+    val getPassName : PassRef -> string
     val getGlobalPassRegistryNative : unit -> nativeint
     val getGlobalPassRegistry : unit -> PassRegistryRef
     val createPassManagerNative : unit -> nativeint

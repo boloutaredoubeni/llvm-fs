@@ -79,6 +79,7 @@ let toFSharpSource
             "LLVMInstallFatalErrorHandler"
             "LLVMResetFatalErrorHandler"
             "LLVMContextSetDiagnosticHandler"
+            "LLVMAddPassRunListener"
         ]
 
     let nsLen = moduleName.LastIndexOf '.'

@@ -272,16 +272,6 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
-            EntryPoint="LLVMGetSymbolFileOffset",
-            CallingConvention=CallingConvention.Cdecl,
-            CharSet=CharSet.Ansi)>]
-        extern uint64 getSymbolFileOffsetNative(
-            void* (* LLVMSymbolIteratorRef *) SI)
-        let getSymbolFileOffset _SI =
-            getSymbolFileOffsetNative ((_SI : SymbolIteratorRef).Ptr)
-
-        [<DllImport(
-            llvmAssemblyName,
             EntryPoint="LLVMGetSymbolSize",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -387,11 +377,19 @@ namespace LLVM.Generated
             member x.Ptr = (x :> ILLVMRef).Ptr
             interface ILLVMRef with member x.Ptr = thePtr
 
+        type PassRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
         type PassManagerRef (thePtr : nativeint) =
             member x.Ptr = (x :> ILLVMRef).Ptr
             interface ILLVMRef with member x.Ptr = thePtr
 
         type PassRegistryRef (thePtr : nativeint) =
+            member x.Ptr = (x :> ILLVMRef).Ptr
+            interface ILLVMRef with member x.Ptr = thePtr
+
+        type PassRunListenerRef (thePtr : nativeint) =
             member x.Ptr = (x :> ILLVMRef).Ptr
             interface ILLVMRef with member x.Ptr = thePtr
 
@@ -733,6 +731,19 @@ namespace LLVM.Generated
             uint32 SLen)
         let getMDKindID _Name _SLen =
             getMDKindIDNative (_Name, _SLen)
+
+        // LLVMAddPassRunListener is blacklisted by the binding generator
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMRemovePassRunListener",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void removePassRunListenerNative(
+            void* (* LLVMContextRef *) arg0,
+            void* (* LLVMPassRunListenerRef *) arg1)
+        let removePassRunListener _arg0 _arg1 =
+            removePassRunListenerNative ((_arg0 : ContextRef).Ptr, (_arg1 : PassRunListenerRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -5186,6 +5197,16 @@ namespace LLVM.Generated
             void* (* LLVMMemoryBufferRef *) MemBuf)
         let disposeMemoryBuffer _MemBuf =
             disposeMemoryBufferNative ((_MemBuf : MemoryBufferRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetPassName",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getPassNameNative(
+            void* (* LLVMPassRef *) arg0)
+        let getPassName _arg0 =
+            Marshal.PtrToStringAuto (getPassNameNative ((_arg0 : PassRef).Ptr))
 
         [<DllImport(
             llvmAssemblyName,
