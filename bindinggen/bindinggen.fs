@@ -38,6 +38,20 @@ let inline ifprintfn depth out fmt =
         fprintfn out "%s" s
     Printf.ksprintf printIndented fmt
 
+let getFuncTypeDefs (defs : CDef list) =
+    let rec go (funcs : Set<string>)= function
+    | [] -> funcs
+    | defHead :: defs ->
+        match defHead with
+        | CTypeAlias ({CFullType.baseType = FunctionType _; CFullType.pointerDepth = 1}, name) ->
+            go (funcs.Add name) defs
+        | CTypeAlias ({CFullType.baseType = FunctionType _}, name) ->
+            failwith "only know how to deal with single-pointer function types"
+        | _ ->
+            go funcs defs
+
+    go Set.empty defs
+
 let getStructDefs (defs : CDef list) =
     let rec go (structs : Set<string>)= function
     | [] -> structs
@@ -76,10 +90,6 @@ let toFSharpSource
             "LLVMDisposeMessage"
             "LLVMCreateSimpleMCJITMemoryManager"
             "LLVMDisposeMCJITMemoryManager"
-            "LLVMInstallFatalErrorHandler"
-            "LLVMResetFatalErrorHandler"
-            "LLVMContextSetDiagnosticHandler"
-            "LLVMAddPassRunListener"
         ]
 
     let nsLen = moduleName.LastIndexOf '.'
@@ -92,6 +102,7 @@ let toFSharpSource
     let depDefs = List.map snd deps
     let allDefs = defs @ List.concat depDefs
     
+    let funcTypes = getFuncTypeDefs allDefs
     let structRefs = getStructDefs allDefs
     let enums = getEnumDefs allDefs
     let rec go (defs : CDef list) =
@@ -143,9 +154,36 @@ let toFSharpSource
                     | UnsignedByteType -> defPtrAdj "uint8"
                     | SizeTType -> defPtrAdj "nativeint (* size_t *)"
                     | DoubleType -> defPtrAdj "double"
+                    | FunctionType -> failwith "can't deal with function types"
+
+                // if there are any function pointers passed, we can't generate a function
+                let isFuncPtr cType =
+                    match cType.baseType with
+                    | GeneralType typeName -> funcTypes.Contains typeName
+                    | FunctionType -> true
+                    | _ -> false
+                let anyFuncPtrs () =
+                    if isFuncPtr retType then
+                        true
+                    else
+                        let rec go = function
+                            | (x, _) :: xt ->
+                                if isFuncPtr x then
+                                    true
+                                else
+                                    go xt
+                            | [] ->
+                                false
+                        go fArgs
 
                 if blacklistedFuncs.Contains fName then
                     ifprintfn 2 out "// %s is blacklisted by the binding generator" fName
+                elif anyFuncPtrs () then
+                    ifprintfn
+                        2
+                        out
+                        "// %s cannot be generated because it uses a function pointer parameter or return value"
+                        fName
                 else
                     // the native function def
                     ifprintfn 2 out "[<DllImport("
@@ -177,6 +215,8 @@ let toFSharpSource
                                 t.pointerDepth = 0
                             | CharType ->
                                 t.pointerDepth <= 1
+                            | FunctionType ->
+                                false
                         let rec go = function
                             | x :: xt -> isTypeFriendly x && go xt
                             | [] -> true

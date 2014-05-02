@@ -646,9 +646,16 @@ namespace LLVM.Generated
 
         // LLVMDisposeMessage is blacklisted by the binding generator
 
-        // LLVMInstallFatalErrorHandler is blacklisted by the binding generator
+        // LLVMInstallFatalErrorHandler cannot be generated because it uses a function pointer parameter or return value
 
-        // LLVMResetFatalErrorHandler is blacklisted by the binding generator
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMResetFatalErrorHandler",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void resetFatalErrorHandlerNative()
+        let resetFatalErrorHandler () =
+            resetFatalErrorHandlerNative ()
 
         [<DllImport(
             llvmAssemblyName,
@@ -677,7 +684,7 @@ namespace LLVM.Generated
         let getGlobalContext () =
             new ContextRef (getGlobalContextNative ())
 
-        // LLVMContextSetDiagnosticHandler is blacklisted by the binding generator
+        // LLVMContextSetDiagnosticHandler cannot be generated because it uses a function pointer parameter or return value
 
         [<DllImport(
             llvmAssemblyName,
@@ -732,7 +739,7 @@ namespace LLVM.Generated
         let getMDKindID _Name _SLen =
             getMDKindIDNative (_Name, _SLen)
 
-        // LLVMAddPassRunListener is blacklisted by the binding generator
+        // LLVMAddPassRunListener cannot be generated because it uses a function pointer parameter or return value
 
         [<DllImport(
             llvmAssemblyName,

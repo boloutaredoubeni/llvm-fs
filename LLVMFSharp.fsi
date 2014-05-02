@@ -400,6 +400,8 @@ namespace LLVM.Generated
     val shutdown : unit -> unit
     val createMessageNative : string -> nativeint
     val createMessage : string -> string
+    val resetFatalErrorHandlerNative : unit -> unit
+    val resetFatalErrorHandler : unit -> unit
     val enablePrettyStackTraceNative : unit -> unit
     val enablePrettyStackTrace : unit -> unit
     val contextCreateNative : unit -> nativeint

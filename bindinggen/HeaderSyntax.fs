@@ -12,6 +12,7 @@ type CBaseType =
     | UnsignedByteType
     | SizeTType
     | DoubleType
+    | FunctionType
     override self.ToString() =
         match self with
         | GeneralType s -> s
@@ -25,6 +26,7 @@ type CBaseType =
         | UnsignedByteType -> "uint8_t"
         | SizeTType -> "size_t"
         | DoubleType -> "double"
+        | FunctionType -> "function"
 
 type CFullType = {
     baseType : CBaseType
