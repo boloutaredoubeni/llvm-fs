@@ -5588,6 +5588,7 @@ namespace LLVM.Generated
 
     open LLVM.FFIUtil
     open System.Runtime.InteropServices
+    open LLVM.Generated.Support
     open LLVM.Generated.Core
 
     module BitWriter =

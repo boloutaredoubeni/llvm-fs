@@ -25,6 +25,7 @@ namespace LLVM.Generated
       end
     val loadLibraryPermanentlyNative : string -> bool
     val loadLibraryPermanently : string -> bool
+    val parseCommandLineOptionsNative : int * nativeint * string -> unit
   end
 namespace LLVM.Generated
   module Object = begin
@@ -410,6 +411,8 @@ namespace LLVM.Generated
     val moduleCreateWithName : string -> ModuleRef
     val moduleCreateWithNameInContextNative : string * nativeint -> nativeint
     val moduleCreateWithNameInContext : string -> ContextRef -> ModuleRef
+    val cloneModuleNative : nativeint -> nativeint
+    val cloneModule : ModuleRef -> ModuleRef
     val disposeModuleNative : nativeint -> unit
     val disposeModule : ModuleRef -> unit
     val getDataLayoutNative : nativeint -> nativeint
@@ -583,6 +586,8 @@ namespace LLVM.Generated
     val getUsedValue : UseRef -> ValueRef
     val getOperandNative : nativeint * uint32 -> nativeint
     val getOperand : ValueRef -> uint32 -> ValueRef
+    val getOperandUseNative : nativeint * uint32 -> nativeint
+    val getOperandUse : ValueRef -> uint32 -> UseRef
     val setOperandNative : nativeint * uint32 * nativeint -> unit
     val setOperand : ValueRef -> uint32 -> ValueRef -> unit
     val getNumOperandsNative : nativeint -> int
@@ -624,11 +629,16 @@ namespace LLVM.Generated
       ContextRef -> string -> uint32 -> bool -> ValueRef
     val constStringNative : string * uint32 * bool -> nativeint
     val constString : string -> uint32 -> bool -> ValueRef
+    val isConstantStringNative : nativeint -> bool
+    val isConstantString : ValueRef -> bool
+    val getAsStringNative : nativeint * nativeptr<nativeint> -> nativeint
     val constStructInContextNative :
       nativeint * nativeint * uint32 * bool -> nativeint
     val constStructNative : nativeint * uint32 * bool -> nativeint
     val constArrayNative : nativeint * nativeint * uint32 -> nativeint
     val constNamedStructNative : nativeint * nativeint * uint32 -> nativeint
+    val getElementAsConstantNative : nativeint * uint32 -> nativeint
+    val getElementAsConstant : ValueRef -> uint32 -> ValueRef
     val constVectorNative : nativeint * uint32 -> nativeint
     val getConstOpcodeNative : nativeint -> int
     val getConstOpcode : ValueRef -> Opcode
@@ -946,6 +956,8 @@ namespace LLVM.Generated
     val getInstructionOpcode : ValueRef -> Opcode
     val getICmpPredicateNative : nativeint -> int
     val getICmpPredicate : ValueRef -> IntPredicate
+    val instructionCloneNative : nativeint -> nativeint
+    val instructionClone : ValueRef -> ValueRef
     val setInstructionCallConvNative : nativeint * uint32 -> unit
     val setInstructionCallConv : ValueRef -> uint32 -> unit
     val getInstructionCallConvNative : nativeint -> uint32
@@ -1361,6 +1373,8 @@ namespace LLVM.Generated
     val writeBitcodeToFD : Core.ModuleRef -> int -> int -> int -> int
     val writeBitcodeToFileHandleNative : nativeint * int -> int
     val writeBitcodeToFileHandle : Core.ModuleRef -> int -> int
+    val writeBitcodeToMemoryBufferNative : nativeint -> nativeint
+    val writeBitcodeToMemoryBuffer : Core.ModuleRef -> Support.MemoryBufferRef
   end
 namespace LLVM.Generated
   module Target = begin
@@ -1509,8 +1523,6 @@ namespace LLVM.Generated
   end
 namespace LLVM.Generated
   module ExecutionEngine = begin
-    val linkInJITNative : unit -> unit
-    val linkInJIT : unit -> unit
     val linkInMCJITNative : unit -> unit
     val linkInMCJIT : unit -> unit
     val linkInInterpreterNative : unit -> unit
@@ -1610,12 +1622,16 @@ namespace LLVM.Generated.Transforms
   module Scalar = begin
     val addAggressiveDCEPassNative : nativeint -> unit
     val addAggressiveDCEPass : Core.PassManagerRef -> unit
+    val addAlignmentFromAssumptionsPassNative : nativeint -> unit
+    val addAlignmentFromAssumptionsPass : Core.PassManagerRef -> unit
     val addCFGSimplificationPassNative : nativeint -> unit
     val addCFGSimplificationPass : Core.PassManagerRef -> unit
     val addDeadStoreEliminationPassNative : nativeint -> unit
     val addDeadStoreEliminationPass : Core.PassManagerRef -> unit
     val addScalarizerPassNative : nativeint -> unit
     val addScalarizerPass : Core.PassManagerRef -> unit
+    val addMergedLoadStoreMotionPassNative : nativeint -> unit
+    val addMergedLoadStoreMotionPass : Core.PassManagerRef -> unit
     val addGVNPassNative : nativeint -> unit
     val addGVNPass : Core.PassManagerRef -> unit
     val addIndVarSimplifyPassNative : nativeint -> unit
@@ -1642,6 +1658,8 @@ namespace LLVM.Generated.Transforms
     val addMemCpyOptPass : Core.PassManagerRef -> unit
     val addPartiallyInlineLibCallsPassNative : nativeint -> unit
     val addPartiallyInlineLibCallsPass : Core.PassManagerRef -> unit
+    val addLowerSwitchPassNative : nativeint -> unit
+    val addLowerSwitchPass : Core.PassManagerRef -> unit
     val addPromoteMemoryToRegisterPassNative : nativeint -> unit
     val addPromoteMemoryToRegisterPass : Core.PassManagerRef -> unit
     val addReassociatePassNative : nativeint -> unit
@@ -1673,6 +1691,8 @@ namespace LLVM.Generated.Transforms
     val addLowerExpectIntrinsicPass : Core.PassManagerRef -> unit
     val addTypeBasedAliasAnalysisPassNative : nativeint -> unit
     val addTypeBasedAliasAnalysisPass : Core.PassManagerRef -> unit
+    val addScopedNoAliasAAPassNative : nativeint -> unit
+    val addScopedNoAliasAAPass : Core.PassManagerRef -> unit
     val addBasicAliasAnalysisPassNative : nativeint -> unit
     val addBasicAliasAnalysisPass : Core.PassManagerRef -> unit
   end

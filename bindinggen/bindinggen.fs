@@ -374,7 +374,7 @@ let main (args : string array) =
             ("Core",                ["Support"])
             ("Initialization",      ["Core"])
             ("BitReader",           ["Core"])
-            ("BitWriter",           ["Core"])
+            ("BitWriter",           ["Support"; "Core"])
             ("Target",              ["Core"])
             ("TargetMachine",       ["Core"; "Target"])
             ("ExecutionEngine",     ["Core"; "Target"; "TargetMachine"])
