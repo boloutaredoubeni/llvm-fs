@@ -20,6 +20,17 @@ namespace LLVM.Generated
         let loadLibraryPermanently _Filename =
             loadLibraryPermanentlyNative (_Filename)
 
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMParseCommandLineOptions",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void parseCommandLineOptionsNative(
+            int argc,
+            void* argv,
+            string Overview)
+        // I don't know how to generate an "F# friendly" version of LLVMParseCommandLineOptions
+
 // This file should not be edited. It is automatically generated from a C header file
 namespace LLVM.Generated
 
@@ -753,6 +764,16 @@ namespace LLVM.Generated
             void* (* LLVMContextRef *) C)
         let moduleCreateWithNameInContext _ModuleID _C =
             new ModuleRef (moduleCreateWithNameInContextNative (_ModuleID, (_C : ContextRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMCloneModule",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMModuleRef *) cloneModuleNative(
+            void* (* LLVMModuleRef *) M)
+        let cloneModule _M =
+            new ModuleRef (cloneModuleNative ((_M : ModuleRef).Ptr))
 
         [<DllImport(
             llvmAssemblyName,
@@ -1669,6 +1690,17 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMGetOperandUse",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMUseRef *) getOperandUseNative(
+            void* (* LLVMValueRef *) Val,
+            uint32 Index)
+        let getOperandUse _Val _Index =
+            new UseRef (getOperandUseNative ((_Val : ValueRef).Ptr, _Index))
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMSetOperand",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -1868,6 +1900,26 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMIsConstantString",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool isConstantStringNative(
+            void* (* LLVMValueRef *) c)
+        let isConstantString _c =
+            isConstantStringNative ((_c : ValueRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetAsString",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* getAsStringNative(
+            void* (* LLVMValueRef *) c,
+            nativeint (* size_t *)* out)
+        // I don't know how to generate an "F# friendly" version of LLVMGetAsString
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMConstStructInContext",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -1910,6 +1962,17 @@ namespace LLVM.Generated
             void* (* LLVMValueRef* *) ConstantVals,
             uint32 Count)
         // I don't know how to generate an "F# friendly" version of LLVMConstNamedStruct
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetElementAsConstant",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMValueRef *) getElementAsConstantNative(
+            void* (* LLVMValueRef *) c,
+            uint32 idx)
+        let getElementAsConstant _c _idx =
+            new ValueRef (getElementAsConstantNative ((_c : ValueRef).Ptr, _idx))
 
         [<DllImport(
             llvmAssemblyName,
@@ -3601,6 +3664,16 @@ namespace LLVM.Generated
             void* (* LLVMValueRef *) Inst)
         let getICmpPredicate _Inst =
             enum<IntPredicate> (getICmpPredicateNative ((_Inst : ValueRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMInstructionClone",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMValueRef *) instructionCloneNative(
+            void* (* LLVMValueRef *) Inst)
+        let instructionClone _Inst =
+            new ValueRef (instructionCloneNative ((_Inst : ValueRef).Ptr))
 
         [<DllImport(
             llvmAssemblyName,
@@ -5554,6 +5627,16 @@ namespace LLVM.Generated
         let writeBitcodeToFileHandle _M _Handle =
             writeBitcodeToFileHandleNative ((_M : ModuleRef).Ptr, _Handle)
 
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMWriteBitcodeToMemoryBuffer",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMMemoryBufferRef *) writeBitcodeToMemoryBufferNative(
+            void* (* LLVMModuleRef *) M)
+        let writeBitcodeToMemoryBuffer _M =
+            new MemoryBufferRef (writeBitcodeToMemoryBufferNative ((_M : ModuleRef).Ptr))
+
 // This file should not be edited. It is automatically generated from a C header file
 namespace LLVM.Generated
 
@@ -6081,15 +6164,6 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
-            EntryPoint="LLVMLinkInJIT",
-            CallingConvention=CallingConvention.Cdecl,
-            CharSet=CharSet.Ansi)>]
-        extern void linkInJITNative()
-        let linkInJIT () =
-            linkInJITNative ()
-
-        [<DllImport(
-            llvmAssemblyName,
             EntryPoint="LLVMLinkInMCJIT",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -6547,6 +6621,16 @@ namespace LLVM.Generated.Transforms
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMAddAlignmentFromAssumptionsPass",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void addAlignmentFromAssumptionsPassNative(
+            void* (* LLVMPassManagerRef *) PM)
+        let addAlignmentFromAssumptionsPass _PM =
+            addAlignmentFromAssumptionsPassNative ((_PM : PassManagerRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMAddCFGSimplificationPass",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -6574,6 +6658,16 @@ namespace LLVM.Generated.Transforms
             void* (* LLVMPassManagerRef *) PM)
         let addScalarizerPass _PM =
             addScalarizerPassNative ((_PM : PassManagerRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMAddMergedLoadStoreMotionPass",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void addMergedLoadStoreMotionPassNative(
+            void* (* LLVMPassManagerRef *) PM)
+        let addMergedLoadStoreMotionPass _PM =
+            addMergedLoadStoreMotionPassNative ((_PM : PassManagerRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -6704,6 +6798,16 @@ namespace LLVM.Generated.Transforms
             void* (* LLVMPassManagerRef *) PM)
         let addPartiallyInlineLibCallsPass _PM =
             addPartiallyInlineLibCallsPassNative ((_PM : PassManagerRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMAddLowerSwitchPass",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void addLowerSwitchPassNative(
+            void* (* LLVMPassManagerRef *) PM)
+        let addLowerSwitchPass _PM =
+            addLowerSwitchPassNative ((_PM : PassManagerRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
@@ -6855,6 +6959,16 @@ namespace LLVM.Generated.Transforms
             void* (* LLVMPassManagerRef *) PM)
         let addTypeBasedAliasAnalysisPass _PM =
             addTypeBasedAliasAnalysisPassNative ((_PM : PassManagerRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMAddScopedNoAliasAAPass",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void addScopedNoAliasAAPassNative(
+            void* (* LLVMPassManagerRef *) PM)
+        let addScopedNoAliasAAPass _PM =
+            addScopedNoAliasAAPassNative ((_PM : PassManagerRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,
