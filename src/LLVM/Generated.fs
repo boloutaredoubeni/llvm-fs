@@ -1875,6 +1875,16 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMConstRealGetDouble",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern double constRealGetDoubleNative(
+            void* (* LLVMValueRef *) ConstantVal,
+            bool* losesInfo)
+        // I don't know how to generate an "F# friendly" version of LLVMConstRealGetDouble
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMConstStringInContext",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -3667,6 +3677,16 @@ namespace LLVM.Generated
 
         [<DllImport(
             llvmAssemblyName,
+            EntryPoint="LLVMGetFCmpPredicate",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern int (* LLVMRealPredicate *) getFCmpPredicateNative(
+            void* (* LLVMValueRef *) Inst)
+        let getFCmpPredicate _Inst =
+            enum<RealPredicate> (getFCmpPredicateNative ((_Inst : ValueRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
             EntryPoint="LLVMInstructionClone",
             CallingConvention=CallingConvention.Cdecl,
             CharSet=CharSet.Ansi)>]
@@ -3752,6 +3772,70 @@ namespace LLVM.Generated
             bool IsTailCall)
         let setTailCall _CallInst _IsTailCall =
             setTailCallNative ((_CallInst : ValueRef).Ptr, _IsTailCall)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetNumSuccessors",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern uint32 getNumSuccessorsNative(
+            void* (* LLVMValueRef *) Term)
+        let getNumSuccessors _Term =
+            getNumSuccessorsNative ((_Term : ValueRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetSuccessor",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMBasicBlockRef *) getSuccessorNative(
+            void* (* LLVMValueRef *) Term,
+            uint32 i)
+        let getSuccessor _Term _i =
+            new BasicBlockRef (getSuccessorNative ((_Term : ValueRef).Ptr, _i))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMSetSuccessor",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void setSuccessorNative(
+            void* (* LLVMValueRef *) Term,
+            uint32 i,
+            void* (* LLVMBasicBlockRef *) block)
+        let setSuccessor _Term _i _block =
+            setSuccessorNative ((_Term : ValueRef).Ptr, _i, (_block : BasicBlockRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMIsConditional",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern bool isConditionalNative(
+            void* (* LLVMValueRef *) Branch)
+        let isConditional _Branch =
+            isConditionalNative ((_Branch : ValueRef).Ptr)
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMGetCondition",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void* (* LLVMValueRef *) getConditionNative(
+            void* (* LLVMValueRef *) Branch)
+        let getCondition _Branch =
+            new ValueRef (getConditionNative ((_Branch : ValueRef).Ptr))
+
+        [<DllImport(
+            llvmAssemblyName,
+            EntryPoint="LLVMSetCondition",
+            CallingConvention=CallingConvention.Cdecl,
+            CharSet=CharSet.Ansi)>]
+        extern void setConditionNative(
+            void* (* LLVMValueRef *) Branch,
+            void* (* LLVMValueRef *) Cond)
+        let setCondition _Branch _Cond =
+            setConditionNative ((_Branch : ValueRef).Ptr, (_Cond : ValueRef).Ptr)
 
         [<DllImport(
             llvmAssemblyName,

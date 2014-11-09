@@ -623,6 +623,7 @@ namespace LLVM.Generated
     val constIntGetZExtValue : ValueRef -> uint64
     val constIntGetSExtValueNative : nativeint -> int64
     val constIntGetSExtValue : ValueRef -> int64
+    val constRealGetDoubleNative : nativeint * nativeptr<bool> -> double
     val constStringInContextNative :
       nativeint * string * uint32 * bool -> nativeint
     val constStringInContext :
@@ -956,6 +957,8 @@ namespace LLVM.Generated
     val getInstructionOpcode : ValueRef -> Opcode
     val getICmpPredicateNative : nativeint -> int
     val getICmpPredicate : ValueRef -> IntPredicate
+    val getFCmpPredicateNative : nativeint -> int
+    val getFCmpPredicate : ValueRef -> RealPredicate
     val instructionCloneNative : nativeint -> nativeint
     val instructionClone : ValueRef -> ValueRef
     val setInstructionCallConvNative : nativeint * uint32 -> unit
@@ -972,6 +975,18 @@ namespace LLVM.Generated
     val isTailCall : ValueRef -> bool
     val setTailCallNative : nativeint * bool -> unit
     val setTailCall : ValueRef -> bool -> unit
+    val getNumSuccessorsNative : nativeint -> uint32
+    val getNumSuccessors : ValueRef -> uint32
+    val getSuccessorNative : nativeint * uint32 -> nativeint
+    val getSuccessor : ValueRef -> uint32 -> BasicBlockRef
+    val setSuccessorNative : nativeint * uint32 * nativeint -> unit
+    val setSuccessor : ValueRef -> uint32 -> BasicBlockRef -> unit
+    val isConditionalNative : nativeint -> bool
+    val isConditional : ValueRef -> bool
+    val getConditionNative : nativeint -> nativeint
+    val getCondition : ValueRef -> ValueRef
+    val setConditionNative : nativeint * nativeint -> unit
+    val setCondition : ValueRef -> ValueRef -> unit
     val getSwitchDefaultDestNative : nativeint -> nativeint
     val getSwitchDefaultDest : ValueRef -> BasicBlockRef
     val addIncomingNative : nativeint * nativeint * nativeint * uint32 -> unit
