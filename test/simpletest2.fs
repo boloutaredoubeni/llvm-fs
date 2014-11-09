@@ -4,14 +4,14 @@ open LLVM.Generated.BitWriter
 open LLVM.Generated.ExecutionEngine
 open LLVM.ExecutionEngine
 open LLVM.Generated.Target
-open LLVM.Target
+//open LLVM.Target
 
 // an F# example adapted from http://www.mdevan.org/llvm-py/examples.html
 
 [<EntryPoint>]
 let main _ =
 
-    initializeX86Target()
+    //initializeX86Target()
 
     let myModule = moduleCreateWithName "tut2"
 

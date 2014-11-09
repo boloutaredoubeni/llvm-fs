@@ -9,7 +9,7 @@ public class SimpleTest2
 
     public static int Main()
     {
-        Target.initializeX86Target();
+        //Target.initializeX86Target();
         
         var myModule = Gen.Core.moduleCreateWithName("tut2");
 
