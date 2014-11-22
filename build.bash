@@ -9,7 +9,7 @@ set -o nounset
 set -x
 
 # build the LLVM binding DLL
-${FSC} --nologo --debug --sig:LLVMFSharp.fsi --target:library --out:LLVMFSharp.dll \
+${FSC} --nologo --debug --target:library --out:LLVMFSharp.dll \
     src/LLVM/FFIUtil.fs \
     src/LLVM/Generated.fs \
     src/LLVM/Core.fs \

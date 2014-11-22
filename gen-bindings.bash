@@ -5,10 +5,13 @@ set -o errexit
 set -o nounset
 set -x
 
+# by default use fsc
+FSC=${FSC:-fsc}
+
 # build and run special purpose tool for generating LLVM C bindings
 fslex --unicode bindinggen/Lexer.fsl
 fsyacc --module FSExternHelper.Parser bindinggen/Parser.fsy
-fsc --nologo \
+${FSC} --nologo \
     bindinggen/Lexing.fs \
     bindinggen/Parsing.fs \
     bindinggen/HeaderSyntax.fs \
