@@ -89,3 +89,8 @@ Regenerating bindings should not be necessary unless you're building bindings to
 a new version of LLVM. If you want to do this start with the `./gen-bindings.bash`
 script and ask questions on the project list if you have problems.
 
+## Maintainer(s)
+
+- [@keithshep](https://github.com/keithshep)
+
+The default maintainer account for projects under "fsprojects" is [@fsgit](https://github.com/fsgit) - F# Community Project Incubation Space (repo management)
