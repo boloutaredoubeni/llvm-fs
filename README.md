@@ -1,3 +1,6 @@
+[![Issue Stats](http://issuestats.com/github/fsprojects/llvm-fs/badge/issue)](http://issuestats.com/github/fsprojects/llvm-fs)
+[![Issue Stats](http://issuestats.com/github/fsprojects/llvm-fs/badge/pr)](http://issuestats.com/github/fsprojects/llvm-fs)
+
 # llvm-fs: An F# binding for LLVM
 
 llvm-fs can be used to write your LLVM compiler in a .NET language. The code
