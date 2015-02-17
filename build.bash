@@ -1,7 +1,16 @@
 #!/bin/bash
 
-# by default use fsc
-FSC=${FSC:-fsc}
+# by default use fsc, or fsharpc
+if [ -z "$FSC" ]; then
+    if command -v fsc >/dev/null 2>&1; then
+        FSC=fsc
+    elif command -v fsharpc >/dev/null 2>&1; then
+        FSC=fsharpc
+    else
+        echo "No FSharp compiler found!"
+        exit 1
+    fi
+fi
 
 # exit on error and don't allow the use of unset variables
 set -o errexit
